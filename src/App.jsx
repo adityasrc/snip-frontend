@@ -1,17 +1,12 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Signup from "./pages/signup";
 
-// Temporary placeholder components 
-const Home = () => <div>Home Page</div>;
-const Login = () => <div>Login Page</div>;
-const Dashboard = () => <div>Dashboard</div>;
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/signup" element={<Signup />} />
       </Routes>
     </BrowserRouter>
   );

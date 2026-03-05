@@ -1,0 +1,1 @@
+export const HTTP_BACKEND = import.meta.env.VITE_HTTP_BACKEND || "http://localhost:3000";
