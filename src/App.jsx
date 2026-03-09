@@ -7,6 +7,7 @@ import { Toaster } from 'react-hot-toast';
 import NotFound from "./pages/NotFound";
 import Landing from "./pages/Landing";
 import Docs from "./pages/Docs";
+import RedirectHandler from "./pages/RedirectHandler";
 
 function App() {
   return (
