@@ -2,7 +2,6 @@ import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { BarChart2, Edit, QrCode, Trash2, Copy, Check, Calendar, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { HTTP_BACKEND } from "../../../config"; 
 
 export function LinkCard({ link, copiedLink, onCopy, onEdit, onDelete, onQr }) {
   const navigate = useNavigate();
@@ -10,8 +9,8 @@ export function LinkCard({ link, copiedLink, onCopy, onEdit, onDelete, onQr }) {
   const createdDate = link.createdAt ? new Date(link.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "Just now";
   const formattedClicks = new Intl.NumberFormat('en-US').format(link.clicks || 0);
 
-  // Display ke liye "http://" ya "https://" hata dete hain taaki UI clean dikhe
-  const displayHost = HTTP_BACKEND.replace(/^https?:\/\//, '');
+  const displayOrigin = window.location.origin;
+  const displayHost = window.location.host;
 
   return (
     <Card className="border-slate-200 overflow-hidden group bg-white rounded-2xl transition-all duration-300 hover:-translate-y-[2px] hover:shadow-lg hover:border-orange-200">
@@ -41,9 +40,8 @@ export function LinkCard({ link, copiedLink, onCopy, onEdit, onDelete, onQr }) {
           </div>
           
           <div className="flex items-center gap-3 bg-slate-50 w-fit px-3 py-1.5 rounded-lg border border-slate-100">
-
             <a 
-              href={`${HTTP_BACKEND}/${link.shortId}`} 
+              href={`${displayOrigin}/${link.shortId}`} 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-orange-600 font-semibold text-[14px] hover:text-orange-700 hover:underline transition-colors"
@@ -52,12 +50,12 @@ export function LinkCard({ link, copiedLink, onCopy, onEdit, onDelete, onQr }) {
             </a>
             <div className="h-4 w-px bg-slate-300"></div>
             <button 
-              onClick={() => onCopy(link.shortId)} 
-              title={copiedLink === link.shortId ? "Copied!" : "Copy to clipboard"}
+              onClick={() => onCopy(`${displayOrigin}/${link.shortId}`)} 
+              title={copiedLink === `${displayOrigin}/${link.shortId}` ? "Copied!" : "Copy to clipboard"}
               aria-label="Copy short link"
               className="text-slate-400 hover:text-slate-700 transition-colors p-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 rounded"
             >
-              {copiedLink === link.shortId ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
+              {copiedLink === `${displayOrigin}/${link.shortId}` ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
             </button>
           </div>
         </div>
