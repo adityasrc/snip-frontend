@@ -226,12 +226,12 @@ export default function Analytics() {
 
           <div className="flex items-center gap-3 bg-slate-50 w-fit px-4 py-2 rounded-xl border border-slate-100">
             <a
-              href={`${HTTP_BACKEND}/${link.shortId}`}
+              href={`${window.location.origin}/${link.shortId}`}
               target="_blank"
               rel="noreferrer"
               className="text-orange-600 font-bold text-[15px] hover:underline flex items-center gap-1.5"
             >
-              {HTTP_BACKEND.replace(/^https?:\/\//, "")}/{link.shortId}{" "}
+              {window.location.host}/{link.shortId}{" "}
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>
