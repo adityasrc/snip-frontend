@@ -38,11 +38,11 @@ export function LandingHero() {
   }
 
   return (
-    // FIX 4: Background grid made much subtler (#f1f5f9 instead of darker slate)
+    
     <div className="w-full bg-white bg-[radial-gradient(#f1f5f9_1.5px,transparent_1px)] [background-size:16px_16px] relative pb-20">
       <div className="absolute top-[-10%] left-1/2 w-[800px] h-[600px] -translate-x-1/2 bg-orange-500/5 blur-[100px] rounded-full pointer-events-none -z-10"></div>
 
-      {/* 1. HERO SECTION */}
+  
       <section className="max-w-4xl mx-auto px-6 text-center flex flex-col items-center pt-16 mb-24 relative z-10">
         <a
           href="https://github.com/adityasrc/snip-frontend"
@@ -114,7 +114,7 @@ export function LandingHero() {
         </div> */}
       </section>
 
-      {/* 2. HOW IT WORKS SECTION */}
+    
       <section className="max-w-5xl mx-auto px-6 mb-32 relative z-10" id="how-it-works">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-4">
@@ -149,20 +149,19 @@ export function LandingHero() {
         </div>
       </section>
 
-      {/* 3. DASHBOARD SCREENSHOT SECTION */}
-      {/* FIX 2: Increased max-w-5xl to max-w-6xl for wider, immersive screenshot */}
+      
       <section className="max-w-6xl mx-auto px-6 mb-32 relative z-10">
         <div className="text-center mb-10">
           <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-4">
             See your links perform in real-time
           </h2>
-          {/* FIX 3: Shorter, punchier subtext */}
+
           <p className="text-[16px] text-slate-500 max-w-xl mx-auto font-medium">
             Track clicks over time, devices, browsers and locations — all in one simple dashboard.
           </p>
         </div>
 
-        {/* FIX 5: Added group, hover:scale-[1.01] and hover shadow for premium interaction */}
+
         <div className="rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-2xl shadow-slate-200/50 transition-all duration-500 hover:scale-[1.01] hover:shadow-orange-500/10 group">
           <div className="bg-slate-50 border-b border-slate-200 px-4 py-3 flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-slate-300"></div>
@@ -174,7 +173,7 @@ export function LandingHero() {
           </div>
           
           <div className="bg-white overflow-hidden">
-            {/* FIX 1 ALERT: Make sure your dashboard-preview.png file on your PC is NOT faded/low-opacity. */}
+
             <img 
               src="/dashboard-preview.png" 
               alt="Snip Analytics Dashboard Preview" 
@@ -184,7 +183,7 @@ export function LandingHero() {
         </div>
       </section>
 
-      {/* 4. WHY SNIP SECTION */}
+      
       <section className="max-w-5xl mx-auto px-6 mb-32 relative z-10">
         <div className="grid md:grid-cols-3 gap-6 text-left">
           <FeatureCard

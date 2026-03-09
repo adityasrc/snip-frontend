@@ -3,15 +3,12 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { HTTP_BACKEND } from "../../config";
 import toast from "react-hot-toast";
-
-// Components
 import { DashboardHeader } from "../components/dashboard/DashboardHeader";
 import { DashboardStats } from "../components/dashboard/DashboardStats";
 import { LinkCard } from "../components/dashboard/LinkCard";
 import { Button } from "../components/ui/button";
-import { Plus, Link as LinkIcon } from "lucide-react";
-
-// Modals
+import { Input } from "../components/ui/input";
+import { Plus, Link as LinkIcon, Search } from "lucide-react";
 import { CreateLinkModal } from "../components/modals/CreateLinkModal";
 import { EditLinkModal } from "../components/modals/EditLinkModal";
 import { DeleteLinkModal } from "../components/modals/DeleteLinkModal";
@@ -24,21 +21,19 @@ export default function Dashboard() {
   const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [copiedLink, setCopiedLink] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Modals States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
-  // Form States
   const [formData, setFormData] = useState({ title: "", originalUrl: "", customAlias: "", expiresAt: "" });
   const [editData, setEditData] = useState({ id: null, title: "", originalUrl: "" });
   const [linkToDelete, setLinkToDelete] = useState(null);
   const [selectedQr, setSelectedQr] = useState({ url: "", title: "" });
   const [submitLoading, setSubmitLoading] = useState(false);
 
-  // Protect route immediately
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -67,7 +62,6 @@ export default function Dashboard() {
     }
   }
 
-  // --- HANDLERS (Using Functional State Updates) ---
   async function handleCreate() {
     if (!formData.originalUrl.trim()) return toast.error("URL is required");
     setSubmitLoading(true);
@@ -78,7 +72,7 @@ export default function Dashboard() {
       });
       const newLink = { 
         ...res.data, 
-        _id: res.data.finalId, 
+        _id: res.data._id, 
         title: formData.title || "Untitled", 
         originalUrl: formData.originalUrl, 
         clicks: 0, 
@@ -87,7 +81,7 @@ export default function Dashboard() {
         createdAt: new Date().toISOString()
       };
       
-      setLinks(prev => [newLink, ...prev]); // Safe React update
+      setLinks(prev => [newLink, ...prev]);
       setIsModalOpen(false);
       setFormData({ title: "", originalUrl: "", customAlias: "", expiresAt: "" });
       toast.success("Link Snapped!");
@@ -138,11 +132,17 @@ export default function Dashboard() {
   }
 
   const copyToClipboard = (shortId) => {
-    navigator.clipboard.writeText(`${currentHost}/${shortId}`);
+    navigator.clipboard.writeText(`${HTTP_BACKEND}/${shortId}`);
     setCopiedLink(shortId);
     toast.success("Link copied!");
     setTimeout(() => setCopiedLink(null), 2000);
   };
+
+  const filteredLinks = links.filter(link => 
+    (link.title && link.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (link.originalUrl && link.originalUrl.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (link.shortId && link.shortId.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans pb-20">
@@ -151,18 +151,28 @@ export default function Dashboard() {
       <main className="max-w-5xl mx-auto p-6 mt-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Your Links</h1>
-          <Button 
-            className="bg-orange-600 hover:bg-orange-500 text-white rounded-xl shadow-sm transition-all font-bold px-5" 
-            onClick={() => setIsModalOpen(true)}
-          >
-            <Plus className="w-5 h-5 mr-2" strokeWidth={2.5} /> Create Link
-          </Button>
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+            <div className="relative w-full sm:w-64">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Input
+                type="text"
+                placeholder="Search links..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 bg-white border-slate-200 focus-visible:ring-orange-500 rounded-xl w-full"
+              />
+            </div>
+            <Button 
+              className="bg-orange-600 hover:bg-orange-500 text-white rounded-xl shadow-sm transition-all font-bold px-5 w-full sm:w-auto" 
+              onClick={() => setIsModalOpen(true)}
+            >
+              <Plus className="w-5 h-5 mr-2" strokeWidth={2.5} /> Create Link
+            </Button>
+          </div>
         </div>
 
-        {/* Stats Section */}
         {!loading && links.length > 0 && <DashboardStats links={links} />}
 
-        {/* Lists Section */}
         {loading ? (
           <div className="grid gap-5">
             {[1, 2, 3].map(i => (
@@ -185,9 +195,26 @@ export default function Dashboard() {
               <Plus className="w-4 h-4 mr-2" /> Create your first link
             </Button>
           </div>
+        ) : filteredLinks.length === 0 ? (
+          <div className="text-center py-20 px-6 bg-white rounded-3xl border border-dashed border-slate-200 shadow-sm mt-8">
+            <div className="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Search className="w-8 h-8 text-slate-400" />
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 mb-2">No results found</h2>
+            <p className="text-slate-500 mb-6 max-w-sm mx-auto">
+              We couldn't find any links matching "{searchQuery}".
+            </p>
+            <Button 
+              variant="outline"
+              className="bg-white border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl" 
+              onClick={() => setSearchQuery("")}
+            >
+              Clear search
+            </Button>
+          </div>
         ) : (
           <div className="grid gap-5">
-            {links.map((link) => (
+            {filteredLinks.map((link) => (
               <LinkCard 
                 key={link._id} 
                 link={link} 
@@ -203,7 +230,6 @@ export default function Dashboard() {
         )}
       </main>
 
-      {/* Render Modals Cleanly */}
       <CreateLinkModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 

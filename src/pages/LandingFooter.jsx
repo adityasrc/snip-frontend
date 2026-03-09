@@ -15,7 +15,7 @@ export function LandingFooter() {
 
         <div className="flex justify-center gap-8 mb-6">
           <a
-            href="https://github.com/adityasrc/snip"
+            href="https://github.com/adityasrc/snip-backend"
             target="_blank"
             rel="noreferrer"
             className="text-[14px] font-medium text-slate-500 hover:text-orange-600 transition-colors"
@@ -29,7 +29,7 @@ export function LandingFooter() {
             API Docs
           </a>
           <a
-            href="https://github.com/adityasrc/snip/issues"
+            href="https://github.com/adityasrc/snip-backend/issues"
             target="_blank"
             rel="noreferrer"
             className="text-[14px] font-medium text-slate-500 hover:text-orange-600 transition-colors"
@@ -39,7 +39,7 @@ export function LandingFooter() {
         </div>
 
         <p className="text-[13px] text-slate-400 font-medium">
-          Open-source URL shortener built with Bun, Express, and React.
+          An open-source URL shortener built with Bun, Express, and React.
         </p>
       </div>
     </footer>

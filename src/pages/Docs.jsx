@@ -35,7 +35,7 @@ export default function Docs() {
         <div className="space-y-6">
           <h2 className="text-2xl font-bold text-slate-900 mt-10 mb-2">Core Endpoints</h2>
 
-          {/* Endpoint 1: Create Link */}
+         
           <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="bg-slate-50 border-b border-slate-100 px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
               <span className="bg-orange-100 text-orange-700 font-bold text-[13px] px-3 py-1 rounded-md w-fit">POST</span>
@@ -66,7 +66,7 @@ export default function Docs() {
             </div>
           </div>
 
-          {/* Endpoint 2: Get Analytics */}
+         
           <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="bg-slate-50 border-b border-slate-100 px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
               <span className="bg-blue-100 text-blue-700 font-bold text-[13px] px-3 py-1 rounded-md w-fit">GET</span>

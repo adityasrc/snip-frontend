@@ -1,16 +1,81 @@
-# React + Vite
+Snip 🔗
+Snip is a lightweight, developer-focused URL shortener with built-in analytics. It allows you to create short links, track clicks in real time, and analyze traffic by device, browser, and location.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+🚀 Key Features
+Instant Redirects
+Links redirect immediately using HTTP 302 before analytics are stored, ensuring zero delay for visitors.
 
-Currently, two official plugins are available:
+Built-in Analytics
+Device, browser, and geographic data are extracted directly from request headers using geoip-lite and ua-parser-js.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Developer Friendly
+Supports custom aliases, link expiration, and a clean REST API.
 
-## React Compiler
+Analytics Dashboard
+A minimal dashboard with charts built using Recharts to visualize traffic patterns over the last 7 days.
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+🛠 Tech Stack
+Frontend
 
-## Expanding the ESLint configuration
+React
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Tailwind CSS
+
+Recharts
+
+Backend
+
+Node.js + Express (Running on Bun runtime)
+
+MongoDB
+
+Utilities
+
+JWT Authentication
+
+Nanoid for short link generation
+
+📸 Screenshots
+Dashboard Overview
+Real-time Analytics
+📖 API Reference
+1. Create Short Link
+POST /api/links/shorten
+
+Headers
+Authorization: Bearer <token>
+
+Request Body
+
+JSON
+{
+  "originalUrl": "https://github.com/adityasrc/snip",
+  "customAlias": "my-project",
+  "expiresAt": "2026-12-31"
+}
+2. Get Link Analytics
+GET /api/links/analytics/:shortId
+
+📂 Repository Structure
+The project is split into two repositories to maintain a decoupled architecture:
+
+Frontend: React dashboard and landing page.
+
+Backend: Node.js API responsible for link generation, redirects, and analytics tracking.
+
+🏗 Running Locally
+Clone the repository
+git clone https://github.com/adityasrc/snip-frontend
+
+Install dependencies
+bun install
+
+Start the server
+bun run dev
+
+🗺 Roadmap
+[ ] Custom Domain Support
+
+[ ] Team Workspaces
+
+[ ] Password Protected Links

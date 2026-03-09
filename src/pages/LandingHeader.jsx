@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, ArrowRight, Link as LinkIcon } from "lucide-react"; 
+import { Menu, X, ArrowRight, Link as LinkIcon } from "lucide-react";
 import { Button } from "../components/ui/button";
 
 export function LandingHeader() {
@@ -17,24 +17,14 @@ export function LandingHeader() {
   }, []);
 
   useEffect(() => {
-    const checkAuth = () => {
-      const token = localStorage.getItem("token");
-      if (token && token !== "undefined" && token !== "null") {
-        setIsLoggedIn(true);
-      } else {
-        setIsLoggedIn(false);
-      }
-      setIsLoading(false);
-    };
-
-    checkAuth();
-    window.addEventListener('storage', checkAuth);
-    return () => window.removeEventListener('storage', checkAuth);
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!(token && token !== "undefined" && token !== "null"));
+    setIsLoading(false);
   }, []);
 
-  const scrollToFeatures = (e) => {
+  const scrollToSection = (e, id) => {
     e.preventDefault();
-    const elem = document.getElementById("features");
+    const elem = document.getElementById(id);
     if (elem) {
       elem.scrollIntoView({ behavior: "smooth" });
       setIsMobileMenuOpen(false);
@@ -42,112 +32,149 @@ export function LandingHeader() {
   };
 
   return (
-    <header 
-      className={`fixed top-0 z-50 w-full transition-all duration-300 ${
-        isScrolled 
-          ? "bg-white/80 backdrop-blur-md border-b border-slate-200/60 shadow-sm py-3" 
-          : "bg-transparent border-b border-transparent py-5"
+    <header
+      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+        isScrolled
+          ? "bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm py-3"
+          : "bg-transparent py-5"
       }`}
     >
-      {/* Added 'relative' here so the absolute center nav works properly */}
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 relative">
-        
-        {/* Logo Section */}
-        <div className="flex items-center">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            {/* Changed from rounded-xl to rounded-full for circular look */}
-            <div className="bg-orange-600 p-1.5 rounded-full transition-transform group-hover:rotate-6">
-              <LinkIcon className="h-5 w-5 text-white" strokeWidth={2.5} />
-            </div>
-            <span className="font-bold text-[20px] tracking-tight text-slate-900">
-              Snip.
-            </span>
-          </Link>
-        </div>
+        <Link to="/" className="flex items-center gap-2.5 group">
+          <div className="bg-orange-600 p-1.5 rounded-xl transition-transform group-hover:-rotate-12">
+            <LinkIcon className="h-5 w-5 text-white" strokeWidth={2.5} />
+          </div>
+          <span className="font-extrabold text-[20px] tracking-tight text-slate-900">
+            Snip
+          </span>
+        </Link>
 
-        {/* Desktop Navigation - Centered Floating Pill Design */}
-        <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-1 bg-slate-50/50 border border-slate-200/80 rounded-full px-2 py-1.5 backdrop-blur-sm shadow-sm">
-          <a 
-            href="#features" 
-            onClick={scrollToFeatures} 
-            className="text-[13px] font-medium text-slate-600 hover:text-orange-600 hover:bg-orange-50 px-3 py-1.5 rounded-full transition-all"
+        <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-1 bg-white border border-slate-200 rounded-full px-2 py-1.5 shadow-sm">
+          <a
+            href="#engine"
+            onClick={(e) => scrollToSection(e, "engine")}
+            className="text-[13px] font-medium text-slate-600 hover:text-orange-600 px-4 py-1.5 transition-colors"
           >
-            Features
+            How it works
           </a>
-          <a 
-            href="https://github.com/adityasrc/snip" 
-            target="_blank" 
+
+          <a
+            href="https://github.com/adityasrc/snip-frontend"
+            target="_blank"
             rel="noreferrer"
-            className="text-[13px] font-medium text-slate-600 hover:text-orange-600 hover:bg-orange-50 px-3 py-1.5 rounded-full transition-all"
+            className="text-[13px] font-medium text-slate-600 hover:text-orange-600 px-4 py-1.5 transition-colors"
           >
             GitHub
           </a>
-          <Link 
-            to="/docs" 
-            className="text-[13px] font-medium text-slate-600 hover:text-orange-600 hover:bg-orange-50 px-3 py-1.5 rounded-full transition-all"
+
+          <Link
+            to="/docs"
+            className="text-[13px] font-medium text-slate-600 hover:text-orange-600 px-4 py-1.5 transition-colors"
           >
             API Docs
           </Link>
         </nav>
 
-        {/* Auth Actions */}
         <div className="hidden md:flex items-center gap-3">
           {isLoading ? (
-            <div className="w-24 h-9 bg-slate-100 animate-pulse rounded-full" />
+            <div className="w-24 h-9 bg-slate-100 animate-pulse rounded-xl" />
           ) : isLoggedIn ? (
-            <Button size="sm" className="bg-orange-600 text-white hover:bg-orange-700 rounded-full px-5 transition-all shadow-md" onClick={() => navigate("/dashboard")}>
+            <Button
+              size="sm"
+              className="bg-orange-600 text-white hover:bg-orange-500 rounded-xl px-5 transition-all"
+              onClick={() => navigate("/dashboard")}
+            >
               Dashboard <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (
             <>
-              <Button variant="ghost" size="sm" className="text-[13px] font-medium text-slate-600 hover:text-orange-600 hover:bg-orange-50 px-4" onClick={() => navigate("/signin")}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-[13px] text-slate-600 hover:text-orange-600 transition-colors bg-transparent hover:bg-transparent"
+                onClick={() => navigate("/signin")}
+              >
                 Log In
               </Button>
-              
-              {/* Vertical Divider Line */}
-              <div className="w-px h-4 bg-slate-300 mx-1"></div>
 
-              <Button size="sm" className="bg-orange-600 text-white hover:bg-orange-700 text-[13px] font-medium rounded-full px-5 shadow-lg shadow-orange-600/20 hover:shadow-orange-600/40 transition-all" onClick={() => navigate("/signup")}>
+              <Button
+                size="sm"
+                className="bg-orange-600 text-white hover:bg-orange-500 rounded-xl px-5 transition-all"
+                onClick={() => navigate("/signup")}
+              >
                 Sign Up Free
               </Button>
             </>
           )}
         </div>
 
-        {/* Mobile Toggle */}
-        <button 
-          className="md:hidden p-2 rounded-full hover:bg-orange-50 text-slate-600 hover:text-orange-600 transition-colors"
+        <button
+          className="md:hidden p-2 rounded-xl hover:bg-slate-50 text-slate-600 border border-transparent hover:border-slate-200 transition-all"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
-          {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {isMobileMenuOpen ? <X /> : <Menu />}
         </button>
       </div>
 
-      {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 top-[60px] z-40 bg-white/95 backdrop-blur-lg animate-in fade-in slide-in-from-top-4 duration-300 border-t border-slate-100">
-          <nav className="flex flex-col p-8 gap-6">
-            <a href="#features" onClick={scrollToFeatures} className="text-xl font-bold text-slate-900 hover:text-orange-600">Features</a>
-            <Link to="/docs" onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-bold text-slate-900 hover:text-orange-600">API Docs</Link>
-            <a href="https://github.com/adityasrc/snip" target="_blank" rel="noreferrer" className="text-xl font-bold text-slate-900 hover:text-orange-600">GitHub</a>
-            
-            <div className="flex flex-col gap-4 mt-4 border-t border-slate-200 pt-8">
-              {isLoggedIn ? (
-                <Button className="w-full py-6 text-lg bg-orange-600 hover:bg-orange-700 text-white rounded-xl shadow-lg shadow-orange-600/20" onClick={() => { navigate("/dashboard"); setIsMobileMenuOpen(false); }}>
-                  Go to Dashboard
+        <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-slate-200 shadow-lg py-4 px-6 flex flex-col gap-4">
+          <a
+            href="#engine"
+            onClick={(e) => scrollToSection(e, "engine")}
+            className="text-[15px] font-medium text-slate-600 hover:text-orange-600 transition-colors"
+          >
+            How it works
+          </a>
+          <a
+            href="https://github.com/adityasrc/snip"
+            target="_blank"
+            rel="noreferrer"
+            className="text-[15px] font-medium text-slate-600 hover:text-orange-600 transition-colors"
+          >
+            GitHub
+          </a>
+          <Link
+            to="/docs"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="text-[15px] font-medium text-slate-600 hover:text-orange-600 transition-colors"
+          >
+            API Docs
+          </Link>
+          <div className="flex flex-col gap-3 mt-2 pt-4 border-t border-slate-200">
+            {isLoggedIn ? (
+              <Button
+                className="w-full bg-orange-600 text-white hover:bg-orange-500 rounded-xl transition-all"
+                onClick={() => {
+                  navigate("/dashboard");
+                  setIsMobileMenuOpen(false);
+                }}
+              >
+                Dashboard
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  className="w-full rounded-xl border-slate-200 text-slate-600 hover:text-orange-600 hover:border-orange-200 transition-all"
+                  onClick={() => {
+                    navigate("/signin");
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  Log In
                 </Button>
-              ) : (
-                <>
-                  <Button variant="outline" className="w-full py-6 text-lg rounded-xl border-slate-200 text-slate-700" onClick={() => { navigate("/signin"); setIsMobileMenuOpen(false); }}>
-                    Log In
-                  </Button>
-                  <Button className="w-full py-6 text-lg bg-orange-600 hover:bg-orange-700 text-white rounded-xl shadow-lg shadow-orange-600/20" onClick={() => { navigate("/signup"); setIsMobileMenuOpen(false); }}>
-                    Get Started Free
-                  </Button>
-                </>
-              )}
-            </div>
-          </nav>
+                <Button
+                  className="w-full bg-orange-600 text-white hover:bg-orange-500 rounded-xl transition-all"
+                  onClick={() => {
+                    navigate("/signup");
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  Sign Up Free
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       )}
     </header>

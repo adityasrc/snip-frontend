@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 import { HTTP_BACKEND } from "../../config";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import { Link as LinkIcon } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -28,7 +30,7 @@ export default function Signup() {
     e.preventDefault(); 
     setError("");
 
-    if (!name || !email || !password) {
+    if (!name.trim() || !email.trim() || !password.trim()) {
       setError("All fields are required");
       return;
     }
@@ -41,15 +43,18 @@ export default function Signup() {
     setLoading(true);
 
     try {
-        const response = await axios.post(`${HTTP_BACKEND}/api/auth/signup`, {
-            name,
-            email,
+        await axios.post(`${HTTP_BACKEND}/api/auth/signup`, {
+            name: name.trim(),
+            email: email.trim(),
             password
         });
+        
+        toast.success("Account created successfully. Please sign in.");
         navigate("/signin");
-    } catch(e) {
-        if (e.response?.data?.message) {
-          setError(e.response.data.message);
+        
+    } catch(error) {
+        if (axios.isAxiosError(error) && error.response?.data?.message) {
+          setError(error.response.data.message);
         } else {
           setError("Something went wrong. Try again.");
         }
@@ -59,19 +64,21 @@ export default function Signup() {
   };
 
   return (
-    <div className="w-screen min-h-screen flex flex-col justify-center items-center bg-[#fdfaf8] p-4 font-sans">
+    <div className="w-screen min-h-screen flex flex-col justify-center items-center bg-slate-50 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:16px_16px] p-4 pt-10 font-sans selection:bg-orange-100">
       
-      {/* Plain Text Brand Name */}
-      <Link to="/" className="mb-8 hover:opacity-80 transition-opacity">
-        <span className="font-extrabold text-3xl tracking-tight text-zinc-900">
-          Snip.
+      <Link to="/" className="mb-12 flex items-center gap-2.5 group hover:opacity-90 transition-opacity">
+        <div className="bg-orange-600 p-1.5 rounded-xl transition-transform group-hover:-rotate-12 shadow-sm">
+          <LinkIcon className="h-6 w-6 text-white" strokeWidth={2.5} />
+        </div>
+        <span className="font-extrabold text-3xl tracking-tight text-slate-900">
+          Snip
         </span>
       </Link>
 
-      <Card className="w-full max-w-sm shadow-sm border-zinc-200/80 bg-white">
+      <Card className="w-full max-w-sm rounded-2xl shadow-lg shadow-slate-200/50 border-slate-200 bg-white">
         <CardHeader className="pb-0 text-center">
-          <CardTitle className="text-xl font-bold">Create an account</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-xl font-bold text-slate-900">Create an account</CardTitle>
+          <CardDescription className="text-slate-500">
             Enter your details to start shortening URLs
           </CardDescription>
         </CardHeader>
@@ -80,20 +87,21 @@ export default function Signup() {
           <CardContent>
             <div className="grid gap-4 mt-4">
               <div className="grid gap-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name" className="text-slate-700">Name</Label>
                 <Input 
                   id="name" 
                   type="text" 
+                  autoFocus
                   placeholder="Aditya Prakash"
                   value={name} 
                   onChange={(e) => setName(e.target.value)} 
                   disabled={loading}
-                  className="focus-visible:ring-orange-500"
+                  className="focus-visible:ring-orange-500 border-slate-200 placeholder:text-slate-500 text-slate-900 rounded-xl"
                 />
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-slate-700">Email</Label>
                 <Input 
                   id="email" 
                   type="email" 
@@ -101,12 +109,12 @@ export default function Signup() {
                   value={email} 
                   onChange={(e) => setEmail(e.target.value)} 
                   disabled={loading}
-                  className="focus-visible:ring-orange-500"
+                  className="focus-visible:ring-orange-500 border-slate-200 placeholder:text-slate-500 text-slate-900 rounded-xl"
                 />
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-slate-700">Password</Label>
                 <Input 
                   id="password" 
                   type="password" 
@@ -114,7 +122,7 @@ export default function Signup() {
                   value={password} 
                   onChange={(e) => setPassword(e.target.value)} 
                   disabled={loading}
-                  className="focus-visible:ring-orange-500"
+                  className="focus-visible:ring-orange-500 border-slate-200 placeholder:text-slate-500 text-slate-900 rounded-xl"
                 />
               </div>
             </div>
@@ -122,22 +130,22 @@ export default function Signup() {
 
           <CardFooter className="flex flex-col gap-4">
             {error && (
-              <div className="w-full p-2 bg-red-50 border border-red-200 rounded-md text-center">
-                <p className="text-sm font-medium text-red-600">{error}</p>
+              <div className="w-full p-2 bg-red-50 border border-red-300 rounded-xl text-center">
+                <p className="text-sm font-medium text-red-700">{error}</p>
               </div>
             )}
             
             <Button 
               type="submit" 
-              disabled={loading}
-              className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold transition-colors"
+              disabled={loading || !name.trim() || !email.trim() || !password.trim()}
+              className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold h-11 rounded-xl transition-all hover:-translate-y-[1px] active:scale-95 shadow-sm disabled:opacity-50 disabled:hover:translate-y-0"
             >
               {loading ? "Creating account..." : "Sign up"}
             </Button>
 
-            <p className="text-sm text-center text-zinc-500">
+            <p className="text-sm text-center text-slate-500">
               Already have an account?{" "}
-              <Link to="/signin" className="font-semibold text-zinc-900 hover:text-orange-600 hover:underline">
+              <Link to="/signin" className="font-semibold text-slate-900 hover:text-orange-600 transition-colors">
                 Sign in
               </Link>
             </p>
