@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
+import { HTTP_BACKEND } from "../../config";
 import { Input } from "../components/ui/input";
 import {
   ArrowRight,
@@ -12,6 +13,7 @@ import {
   MousePointerClick,
   Share2,
   LineChart,
+  Star // NEW: Imported Star for social proof
 } from "lucide-react";
 
 export function LandingHero() {
@@ -19,6 +21,7 @@ export function LandingHero() {
   const [url, setUrl] = useState("");
   const [previewSlug, setPreviewSlug] = useState("");
   const currentHost = window.location.host;
+  const isLoggedIn = !!localStorage.getItem("token");
 
   function generatePreview() {
     const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -35,13 +38,14 @@ export function LandingHero() {
   }
 
   return (
-    <div className="w-full bg-white bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:16px_16px] relative pb-20">
+    // FIX 4: Background grid made much subtler (#f1f5f9 instead of darker slate)
+    <div className="w-full bg-white bg-[radial-gradient(#f1f5f9_1.5px,transparent_1px)] [background-size:16px_16px] relative pb-20">
       <div className="absolute top-[-10%] left-1/2 w-[800px] h-[600px] -translate-x-1/2 bg-orange-500/5 blur-[100px] rounded-full pointer-events-none -z-10"></div>
 
       {/* 1. HERO SECTION */}
       <section className="max-w-4xl mx-auto px-6 text-center flex flex-col items-center pt-16 mb-24 relative z-10">
         <a
-          href="https://github.com/adityasrc/snip"
+          href="https://github.com/adityasrc/snip-frontend"
           target="_blank"
           rel="noreferrer"
           className="inline-flex items-center gap-2 border border-slate-200 bg-white/60 backdrop-blur-sm shadow-sm px-3 py-1.5 rounded-full text-slate-600 text-[13px] font-semibold mb-8 hover:border-orange-200 hover:text-orange-600 transition-all cursor-pointer group"
@@ -63,7 +67,7 @@ export function LandingHero() {
 
         <p className="text-[16px] md:text-[18px] text-slate-500 max-w-2xl mx-auto mb-10 font-medium leading-relaxed">
           A lightweight, high-performance URL shortener. Create concise links
-          and track accurate geolocation, IPs, and device analytics in
+          and track accurate geolocation, devices, and browser analytics in
           real-time.
         </p>
 
@@ -78,7 +82,7 @@ export function LandingHero() {
             className="border-none shadow-none focus-visible:ring-0 text-[17px] h-14 flex-1 px-2 bg-transparent text-slate-900 placeholder:text-slate-400 font-medium"
           />
           <Button
-            onClick={() => navigate("/signup")}
+            onClick={() => navigate(isLoggedIn ? "/dashboard" : "/signup")}
             className="bg-orange-600 hover:bg-orange-500 text-white h-14 px-10 rounded-xl font-bold text-[16px] shadow-sm transition-all active:scale-95"
           >
             Snip It
@@ -86,25 +90,32 @@ export function LandingHero() {
         </div>
 
         <div className="flex flex-col items-center gap-4 mt-2 h-6">
-          <div
-            className={`transition-opacity duration-300 ${url ? "opacity-100" : "opacity-0"}`}
-          >
+          <div className={`transition-opacity duration-300 ${url ? "opacity-100" : "opacity-0"}`}>
             <p className="text-[14px] text-slate-500 font-medium flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-orange-500" /> Preview:{" "}
               <span className="text-slate-900 font-bold tracking-wide">
-                {currentHost}/
+                {HTTP_BACKEND.replace(/^https?:\/\//, '')}/
                 <span className="text-orange-600">{previewSlug}</span>
               </span>
             </p>
           </div>
         </div>
+
+       
+        {/* <div className="mt-10 flex items-center gap-2 text-sm text-slate-500 font-medium bg-slate-50 px-4 py-2 rounded-full border border-slate-100">
+          <div className="flex gap-0.5 text-orange-400">
+             <Star className="w-4 h-4 fill-current" />
+             <Star className="w-4 h-4 fill-current" />
+             <Star className="w-4 h-4 fill-current" />
+             <Star className="w-4 h-4 fill-current" />
+             <Star className="w-4 h-4 fill-current" />
+          </div>
+          <span className="ml-1">Trusted by 1,000+ developers</span>
+        </div> */}
       </section>
 
       {/* 2. HOW IT WORKS SECTION */}
-      <section
-        className="max-w-5xl mx-auto px-6 mb-32 relative z-10"
-        id="how-it-works"
-      >
+      <section className="max-w-5xl mx-auto px-6 mb-32 relative z-10" id="how-it-works">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-4">
             How Snip works
@@ -116,9 +127,7 @@ export function LandingHero() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 text-center relative">
-          {/* Connecting line for desktop */}
           <div className="hidden md:block absolute top-10 left-[16%] right-[16%] h-0.5 bg-slate-100 -z-10"></div>
-
           <StepCard
             step="1"
             icon={<MousePointerClick className="w-6 h-6 text-orange-600" />}
@@ -141,30 +150,36 @@ export function LandingHero() {
       </section>
 
       {/* 3. DASHBOARD SCREENSHOT SECTION */}
-      <section className="max-w-5xl mx-auto px-6 mb-32 relative z-10">
+      {/* FIX 2: Increased max-w-5xl to max-w-6xl for wider, immersive screenshot */}
+      <section className="max-w-6xl mx-auto px-6 mb-32 relative z-10">
         <div className="text-center mb-10">
           <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-4">
             See your links perform in real-time
           </h2>
-          <p className="text-[16px] text-slate-500 max-w-xl mx-auto">
-            Get granular insights into your audience. Track clicks over time,
-            geographic distribution, and device preferences.
+          {/* FIX 3: Shorter, punchier subtext */}
+          <p className="text-[16px] text-slate-500 max-w-xl mx-auto font-medium">
+            Track clicks over time, devices, browsers and locations — all in one simple dashboard.
           </p>
         </div>
 
-        {/* Mock Browser Window container for the screenshot */}
-        <div className="rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-2xl shadow-slate-200/50">
+        {/* FIX 5: Added group, hover:scale-[1.01] and hover shadow for premium interaction */}
+        <div className="rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-2xl shadow-slate-200/50 transition-all duration-500 hover:scale-[1.01] hover:shadow-orange-500/10 group">
           <div className="bg-slate-50 border-b border-slate-200 px-4 py-3 flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-slate-300"></div>
             <div className="w-3 h-3 rounded-full bg-slate-300"></div>
             <div className="w-3 h-3 rounded-full bg-slate-300"></div>
             <div className="mx-auto bg-white border border-slate-200 rounded-md px-24 py-1 text-[11px] text-slate-400 font-mono">
-              snip.app/dashboard
+              snip.app/analytics/flowboard
             </div>
           </div>
-          {/* REPLACE THIS DIV WITH YOUR ACTUAL DASHBOARD IMG TAG */}
-          <div className="bg-slate-100 aspect-[16/9] flex items-center justify-center text-slate-400 font-medium">
-            [ Analytics dashboard preview ]
+          
+          <div className="bg-white overflow-hidden">
+            {/* FIX 1 ALERT: Make sure your dashboard-preview.png file on your PC is NOT faded/low-opacity. */}
+            <img 
+              src="/dashboard-preview.png" 
+              alt="Snip Analytics Dashboard Preview" 
+              className="w-full h-auto object-cover object-top"
+            />
           </div>
         </div>
       </section>
@@ -190,11 +205,8 @@ export function LandingHero() {
         </div>
       </section>
 
-      {/* 5. ARCHITECTURE SECTION */}
-      <section
-        className="max-w-5xl mx-auto px-6 mb-32 relative z-10"
-        id="engine"
-      >
+     
+      <section className="max-w-5xl mx-auto px-6 mb-32 relative z-10" id="engine">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="flex flex-col gap-8">
             <div>
@@ -306,7 +318,7 @@ export function LandingHero() {
         </div>
       </section>
 
-      {/* 6. FINAL CTA */}
+     
       <section className="max-w-3xl mx-auto px-6 text-center">
         <div className="bg-slate-50 rounded-3xl p-12 border border-slate-100 shadow-sm relative overflow-hidden">
           <h2 className="text-3xl font-bold tracking-tight text-slate-900 mb-4 relative z-10">
@@ -317,9 +329,10 @@ export function LandingHero() {
           </p>
           <Button
             className="bg-orange-600 text-white hover:bg-orange-500 h-12 px-10 rounded-xl font-bold transition-all shadow-sm active:scale-95 text-[15px] relative z-10"
-            onClick={() => navigate("/signup")}
+            onClick={() => navigate(isLoggedIn ? "/dashboard" : "/signup")}
           >
-            Create Free Account
+            
+            Start Snipping
           </Button>
         </div>
       </section>
@@ -327,7 +340,6 @@ export function LandingHero() {
   );
 }
 
-// Sub-components
 function StepCard({ step, icon, title, desc }) {
   return (
     <div className="flex flex-col items-center bg-white p-6 rounded-2xl relative z-10">
