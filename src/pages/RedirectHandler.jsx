@@ -32,11 +32,12 @@ const RedirectHandler = () => {
   }
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center bg-background text-foreground">
-      <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-      <h1 className="mt-4 text-xl font-medium">Snip is redirecting you...</h1>
-      <p className="text-sm text-muted-foreground text-center px-4">Preparing your destination, please wait a moment.</p>
-    </div>
+    // <div className="flex h-screen flex-col items-center justify-center bg-background text-foreground">
+    //   <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+    //   <h1 className="mt-4 text-xl font-medium">Snip is redirecting you...</h1>
+    //   <p className="text-sm text-muted-foreground text-center px-4">Preparing your destination, please wait a moment.</p>
+    // </div>
+    null
   );
 };
 

@@ -132,7 +132,7 @@ export default function Dashboard() {
   }
 
   const copyToClipboard = (shortId) => {
-    navigator.clipboard.writeText(`${HTTP_BACKEND}/${shortId}`);
+    navigator.clipboard.writeText(`https://getsnip.vercel.app/${shortId}`);
     setCopiedLink(shortId);
     toast.success("Link copied!");
     setTimeout(() => setCopiedLink(null), 2000);
