@@ -19,6 +19,7 @@ function App() {
         <Route path="*" element={<NotFound />} />
         <Route path="/" element={<Landing />} />
         <Route path="/docs" element={<Docs />} />
+        <Route path="/:shortId" element={<RedirectHandler />} />
       </Routes>
       <Toaster/>
     </BrowserRouter>
