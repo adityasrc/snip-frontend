@@ -50,12 +50,12 @@ export function LinkCard({ link, copiedLink, onCopy, onEdit, onDelete, onQr }) {
             </a>
             <div className="h-4 w-px bg-slate-300"></div>
             <button 
-              onClick={() => onCopy(`${displayOrigin}/${link.shortId}`)} 
-              title={copiedLink === `${displayOrigin}/${link.shortId}` ? "Copied!" : "Copy to clipboard"}
+              onClick={() => onCopy(link.shortId)} 
+              title={copiedLink === link.shortId ? "Copied!" : "Copy to clipboard"}
               aria-label="Copy short link"
               className="text-slate-400 hover:text-slate-700 transition-colors p-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 rounded"
             >
-              {copiedLink === `${displayOrigin}/${link.shortId}` ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
+              {copiedLink === link.shortId ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
             </button>
           </div>
         </div>

@@ -10,7 +10,7 @@ const RedirectHandler = () => {
   useEffect(() => {
     const performRedirect = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/links/${shortId}`);
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/${shortId}`);
         if (response.data.originalUrl) {
           window.location.href = response.data.originalUrl;
         }
