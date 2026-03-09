@@ -5,9 +5,8 @@ export default function Docs() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans pb-20">
       <LandingHeader />
-       <br></br>
-       <br></br>
-      <main className="max-w-4xl mx-auto p-6 mt-10">
+       
+      <main className="max-w-4xl mx-auto p-6 pt-20">
         <div className="mb-10">
           <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-4">API Reference</h1>
           <p className="text-lg text-slate-500">
@@ -99,7 +98,7 @@ export default function Docs() {
             </div>
           </div>
 
-          {/* Endpoint 3: Public Redirect (The Engine) */}
+         
           <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="bg-slate-50 border-b border-slate-100 px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
               <span className="bg-blue-100 text-blue-700 font-bold text-[13px] px-3 py-1 rounded-md w-fit">GET</span>
