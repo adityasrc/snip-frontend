@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../lib/api";
 import { toast } from "react-hot-toast";
 import { HTTP_BACKEND } from "../../config";
 import { Button } from "../components/ui/button";
@@ -37,7 +37,7 @@ export default function Signin() {
     setLoading(true);
 
     try {
-        const response = await axios.post(`${HTTP_BACKEND}/api/auth/signin`, {
+        const response = await api.post(`/api/auth/signin`, {
             email: email.trim(),
             password
         });
@@ -48,14 +48,10 @@ export default function Signin() {
         navigate("/dashboard");
         toast.success("Signed in successfully!");
     } catch(error) {
-        if (axios.isAxiosError(error)) {
-          if (error.response?.status === 401) {
-            setError("Invalid email or password");
-          } else if (error.response?.data?.message) {
-            setError(error.response.data.message);
-          } else {
-            setError("Something went wrong. Please try again.");
-          }
+        if (error.response?.status === 401) {
+          setError("Invalid email or password");
+        } else if (error.response?.data?.message) {
+          setError(error.response.data.message);
         } else {
           setError("Something went wrong. Please try again.");
         }

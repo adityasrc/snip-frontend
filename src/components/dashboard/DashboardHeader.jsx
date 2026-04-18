@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { Link as LinkIcon, LogOut, UserIcon } from "lucide-react";
+import { Link as LinkIcon, LogOut } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -93,14 +93,6 @@ export function DashboardHeader() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-slate-100" />
-              
-              <DropdownMenuItem className="cursor-pointer text-[13px] text-slate-700 hover:bg-slate-50 focus:bg-slate-50">
-                <UserIcon className="mr-2 h-4 w-4 text-slate-500" />
-                Account
-              </DropdownMenuItem>
-
-              <DropdownMenuSeparator className="bg-slate-100" />
-
               <DropdownMenuItem
                 onClick={handleLogout}
                 className="cursor-pointer text-[13px] text-red-600 focus:bg-red-50 focus:text-red-700"

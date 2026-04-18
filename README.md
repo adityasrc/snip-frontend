@@ -1,81 +1,129 @@
-Snip 🔗
-Snip is a lightweight, developer-focused URL shortener with built-in analytics. It allows you to create short links, track clicks in real time, and analyze traffic by device, browser, and location.
+# Snip — Frontend
 
-🚀 Key Features
-Instant Redirects
-Links redirect immediately using HTTP 302 before analytics are stored, ensuring zero delay for visitors.
+React frontend for the Snip URL shortener. Clean, component-driven architecture with a professional analytics dashboard.
 
-Built-in Analytics
-Device, browser, and geographic data are extracted directly from request headers using geoip-lite and ua-parser-js.
+**Live:** https://getsnip.vercel.app · **Backend repo:** https://github.com/adityasrc/snip-backend
 
-Developer Friendly
-Supports custom aliases, link expiration, and a clean REST API.
+---
 
-Analytics Dashboard
-A minimal dashboard with charts built using Recharts to visualize traffic patterns over the last 7 days.
+## Tech Stack
 
-🛠 Tech Stack
-Frontend
+| Layer | Technology |
+|-------|-----------|
+| Framework | React 19 (Vite) |
+| Styling | Tailwind CSS v3 |
+| UI Primitives | Radix UI |
+| Charts | Recharts |
+| HTTP Client | Axios (with interceptor) |
+| Routing | React Router v7 |
+| Icons | Lucide React |
+| Toasts | react-hot-toast |
+| Font | Space Grotesk (Google Fonts) |
 
-React
+---
 
-Tailwind CSS
+## Project Structure
 
-Recharts
+```
+src/
+├── components/
+│   ├── analytics/       # Chart components (TrafficChart, DevicePieChart, etc.)
+│   ├── dashboard/       # DashboardHeader, DashboardStats, LinkCard, Modals
+│   └── ui/              # shadcn-style primitives (Button, Input, Card, etc.)
+├── lib/
+│   └── api.js           # Axios instance with JWT interceptor
+├── pages/
+│   ├── Landing.jsx      # Landing page shell
+│   ├── LandingHero.jsx  # Hero + sections
+│   ├── LandingHeader.jsx
+│   ├── LandingFooter.jsx
+│   ├── Dashboard.jsx    # Main app page
+│   ├── Analytics.jsx    # Per-link analytics view
+│   ├── signin.jsx
+│   ├── signup.jsx
+│   ├── Docs.jsx         # API documentation
+│   ├── NotFound.jsx
+│   └── RedirectHandler.jsx
+└── App.jsx              # Routes
+```
 
-Backend
+---
 
-Node.js + Express (Running on Bun runtime)
+## Key Architecture Decisions
 
-MongoDB
+### Centralized API Client
+All requests go through a single Axios instance in `lib/api.js`. A request interceptor automatically attaches the JWT from `localStorage` to every `Authorization` header — no manual token passing anywhere:
 
-Utilities
+```js
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+```
 
-JWT Authentication
+### useMemo for Analytics
+All derived data on the analytics page (deviceData, browserData, countryData, timelineData) is computed with `useMemo` — they only recompute when the raw `clicks` array changes, not on every render.
 
-Nanoid for short link generation
+### Optimistic UI Updates
+On create/edit/delete, local state is updated immediately without waiting for a refetch. This makes the UI feel instant while the server confirms in the background.
 
-📸 Screenshots
-Dashboard Overview
-Real-time Analytics
-📖 API Reference
-1. Create Short Link
-POST /api/links/shorten
+### Empty States
+Every data-dependent view has three states handled: loading skeleton, empty state (no data), and populated state. No blank screens or uncaught null errors.
 
-Headers
-Authorization: Bearer <token>
+---
 
-Request Body
+## Running Locally
 
-JSON
-{
-  "originalUrl": "https://github.com/adityasrc/snip",
-  "customAlias": "my-project",
-  "expiresAt": "2026-12-31"
-}
-2. Get Link Analytics
-GET /api/links/analytics/:shortId
+```bash
+git clone https://github.com/adityasrc/snip-frontend.git
+cd snip-frontend
 
-📂 Repository Structure
-The project is split into two repositories to maintain a decoupled architecture:
-
-Frontend: React dashboard and landing page.
-
-Backend: Node.js API responsible for link generation, redirects, and analytics tracking.
-
-🏗 Running Locally
-Clone the repository
-git clone https://github.com/adityasrc/snip-frontend
-
-Install dependencies
+# Install dependencies
 bun install
 
-Start the server
+# Set environment variable
+echo "VITE_BACKEND_URL=http://localhost:10000" > .env
+
+# Start dev server
 bun run dev
+```
 
-🗺 Roadmap
-[ ] Custom Domain Support
+App runs on `http://localhost:5173`.
 
-[ ] Team Workspaces
+---
 
-[ ] Password Protected Links
+## Environment Variables
+
+```env
+VITE_BACKEND_URL=https://snip-backend.onrender.com
+```
+
+---
+
+## Pages
+
+| Route | Description |
+|-------|-------------|
+| `/` | Landing page with hero, how-it-works, feature cards |
+| `/signup` | User registration |
+| `/signin` | Login |
+| `/dashboard` | Link management (create, edit, delete, copy, QR) |
+| `/analytics/:id` | Per-link analytics with traffic chart, devices, browsers, locations |
+| `/docs` | API documentation |
+| `/:shortId` | Short link redirect handler |
+| `*` | 404 page |
+
+---
+
+## Deployment
+
+Deployed on Vercel. The `vercel.json` rewrites all routes to `index.html` for client-side routing:
+
+```json
+{
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
+```
+
+Set `VITE_BACKEND_URL` in the Vercel environment variables dashboard before deploying.

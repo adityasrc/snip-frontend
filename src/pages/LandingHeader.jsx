@@ -51,8 +51,8 @@ export function LandingHeader() {
 
         <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-1 bg-white border border-slate-200 rounded-full px-2 py-1.5 shadow-sm">
           <a
-            href="#engine"
-            onClick={(e) => scrollToSection(e, "engine")}
+            href="#how-it-works"
+            onClick={(e) => scrollToSection(e, "how-it-works")}
             className="text-[13px] font-medium text-slate-600 hover:text-orange-600 px-4 py-1.5 transition-colors"
           >
             How it works
@@ -119,14 +119,14 @@ export function LandingHeader() {
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-slate-200 shadow-lg py-4 px-6 flex flex-col gap-4">
           <a
-            href="#engine"
-            onClick={(e) => scrollToSection(e, "engine")}
+            href="#how-it-works"
+            onClick={(e) => scrollToSection(e, "how-it-works")}
             className="text-[15px] font-medium text-slate-600 hover:text-orange-600 transition-colors"
           >
             How it works
           </a>
           <a
-            href="https://github.com/adityasrc/snip"
+            href="https://github.com/adityasrc/snip-frontend"
             target="_blank"
             rel="noreferrer"
             className="text-[15px] font-medium text-slate-600 hover:text-orange-600 transition-colors"

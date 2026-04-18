@@ -15,7 +15,7 @@ export function LandingFooter() {
 
         <div className="flex justify-center gap-8 mb-6">
           <a
-            href="https://github.com/adityasrc/snip-backend"
+            href="https://github.com/adityasrc/snip-frontend"
             target="_blank"
             rel="noreferrer"
             className="text-[14px] font-medium text-slate-500 hover:text-orange-600 transition-colors"
@@ -29,7 +29,7 @@ export function LandingFooter() {
             API Docs
           </a>
           <a
-            href="https://github.com/adityasrc/snip-backend/issues"
+            href="https://github.com/adityasrc/snip-frontend/issues"
             target="_blank"
             rel="noreferrer"
             className="text-[14px] font-medium text-slate-500 hover:text-orange-600 transition-colors"
@@ -44,4 +44,4 @@ export function LandingFooter() {
       </div>
     </footer>
   );
-}
+}

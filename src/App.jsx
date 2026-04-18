@@ -13,14 +13,14 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<Landing />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
         <Route path="/dashboard" element={<Dashboard/>} />
         <Route path="/analytics/:id" element={<Analytics/>} />
-        <Route path="*" element={<NotFound />} />
-        <Route path="/" element={<Landing />} />
         <Route path="/docs" element={<Docs />} />
         <Route path="/:shortId" element={<RedirectHandler />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster/>
     </BrowserRouter>

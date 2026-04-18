@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../lib/api";
 import { toast } from "react-hot-toast";
 import { HTTP_BACKEND } from "../../config";
 import { Button } from "../components/ui/button";
@@ -43,17 +43,17 @@ export default function Signup() {
     setLoading(true);
 
     try {
-        await axios.post(`${HTTP_BACKEND}/api/auth/signup`, {
-            name: name.trim(),
+        await api.post(`/api/auth/signup`, {
             email: email.trim(),
-            password
+            password,
+            name: name.trim()
         });
         
         toast.success("Account created successfully. Please sign in.");
         navigate("/signin");
         
     } catch(error) {
-        if (axios.isAxiosError(error) && error.response?.data?.message) {
+        if (error.response?.data?.message) {
           setError(error.response.data.message);
         } else {
           setError("Something went wrong. Try again.");
