@@ -5,15 +5,7 @@ const RedirectHandler = () => {
   const { shortId } = useParams();
 
   useEffect(() => {
-    let ref = "Direct";
-    if (document.referrer) {
-      try {
-        ref = new URL(document.referrer).hostname;
-      } catch {
-        ref = document.referrer;
-      }
-    }
-
+    const ref = document.referrer ? new URL(document.referrer).hostname : "Direct";
     window.location.replace(
       `${import.meta.env.VITE_BACKEND_URL}/${shortId}?ref=${encodeURIComponent(ref)}`
     );
