@@ -68,7 +68,13 @@ export function LandingHero() {
             className="border-none shadow-none focus-visible:ring-0 text-[17px] h-14 flex-1 px-2 bg-transparent text-slate-900 placeholder:text-slate-400 font-medium"
           />
           <Button
-            onClick={() => navigate(isLoggedIn ? "/dashboard" : "/signup")}
+            onClick={() => {
+              if (url.trim()) {
+                navigate(isLoggedIn ? "/dashboard" : "/signup", { state: { prefillUrl: url.trim() } });
+              } else {
+                navigate(isLoggedIn ? "/dashboard" : "/signup");
+              }
+            }}
             className="bg-orange-600 hover:bg-orange-500 text-white h-14 px-10 rounded-xl font-bold text-[16px] shadow-sm transition-all active:scale-95"
           >
             Snip It

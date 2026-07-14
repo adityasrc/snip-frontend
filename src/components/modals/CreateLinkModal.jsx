@@ -31,7 +31,7 @@ export function CreateLinkModal({ isOpen, onClose, formData, setFormData, onSubm
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-[13px] font-medium text-slate-700">Title (Optional)</Label>
+              <Label className="text-[13px] font-medium text-slate-700">Title</Label>
               <Input 
                 className="h-10 rounded-xl border-slate-200 focus-visible:ring-orange-500 text-[14px] text-slate-900 placeholder:text-slate-400 shadow-sm" 
                 placeholder="My Campaign" 
@@ -40,7 +40,7 @@ export function CreateLinkModal({ isOpen, onClose, formData, setFormData, onSubm
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[13px] font-medium text-slate-700">Custom Alias</Label>
+              <Label className="text-[13px] font-medium text-slate-700">Custom Alias (Optional) </Label>
               <Input 
                 className="h-10 rounded-xl border-slate-200 focus-visible:ring-orange-500 text-[14px] text-slate-900 placeholder:text-slate-400 shadow-sm" 
                 placeholder="my-brand" 

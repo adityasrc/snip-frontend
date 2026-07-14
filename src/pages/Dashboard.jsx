@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import api from "../lib/api";
 import toast from "react-hot-toast";
 import { DashboardHeader } from "../components/dashboard/DashboardHeader";
@@ -15,6 +15,7 @@ import { QrModal } from "../components/modals/QrModal";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const currentHost = window.location.host; 
 
   const [links, setLinks] = useState([]);
@@ -40,6 +41,12 @@ export default function Dashboard() {
       return;
     }
     fetchLinks(token);
+
+    const prefillUrl = location.state?.prefillUrl;
+    if (prefillUrl) {
+      setFormData(prev => ({ ...prev, originalUrl: prefillUrl }));
+      setIsModalOpen(true);
+    }
   }, []);
 
   async function fetchLinks(token) {

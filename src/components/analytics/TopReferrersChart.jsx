@@ -1,19 +1,19 @@
 import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { MapPin } from "lucide-react";
+import { Share2 } from "lucide-react";
 
-export function TopLocationsChart({ countryData }) {
+export function TopReferrersChart({ referrerData }) {
   return (
     <Card className="bg-white border-slate-200 rounded-3xl shadow-sm">
       <CardHeader className="border-b border-slate-100 pb-4 px-6 pt-6">
         <CardTitle className="text-[16px] font-bold text-slate-900 flex items-center gap-2">
-          <MapPin className="w-4 h-4 text-slate-400" /> Top Locations
+          <Share2 className="w-4 h-4 text-slate-400" /> Top Referrers
         </CardTitle>
       </CardHeader>
       <CardContent className="p-3 h-[250px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
-            data={countryData}
+            data={referrerData}
             layout="vertical"
             margin={{ top: 0, right: 20, left: 10, bottom: 0 }}
           >
@@ -41,7 +41,7 @@ export function TopLocationsChart({ countryData }) {
                 boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
               }}
             />
-            <Bar dataKey="value" fill="#fb923c" radius={[0, 4, 4, 0]} barSize={10} />
+            <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={10} />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>

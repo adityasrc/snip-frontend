@@ -10,7 +10,7 @@ export function TopBrowsersChart({ browserData }) {
           <Globe className="w-4 h-4 text-slate-400" /> Top Browsers
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-3 h-[130px]">
+      <CardContent className="p-3 h-[250px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={browserData}

@@ -16,6 +16,7 @@ import { TrafficChart } from "../components/analytics/TrafficChart";
 import { DevicePieChart } from "../components/analytics/DevicePieChart";
 import { TopBrowsersChart } from "../components/analytics/TopBrowsersChart";
 import { TopLocationsChart } from "../components/analytics/TopLocationsChart";
+import { TopReferrersChart } from "../components/analytics/TopReferrersChart";
 
 export default function Analytics() {
   const { id } = useParams();
@@ -74,6 +75,23 @@ export default function Analytics() {
       .sort((a, b) => b.value - a.value)
       .slice(0, 5);
   }, [clicks]);
+
+  const referrerData = useMemo(() => {
+    const counts = clicks.reduce((acc, curr) => {
+      const ref = curr.referrer || "Direct";
+      acc[ref] = (acc[ref] || 0) + 1;
+      return acc;
+    }, {});
+    return Object.entries(counts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 5);
+  }, [clicks]);
+
+  const topCountry = useMemo(() => {
+    if (countryData.length === 0) return "—";
+    return countryData[0].name;
+  }, [countryData]);
 
   const timelineData = useMemo(() => {
     if (clicks.length === 0) return [];
@@ -198,9 +216,9 @@ export default function Analytics() {
               )}
             </div>
             <div className="bg-slate-800/60 rounded-xl p-4 border border-slate-700/50">
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-1.5">Unique Devices</p>
-              <p className="text-3xl font-bold text-white">{deviceData.length}</p>
-              <p className="text-[11px] text-slate-500 mt-1.5">device types tracked</p>
+              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-1.5">Top Country</p>
+              <p className="text-3xl font-bold text-white">{topCountry}</p>
+              <p className="text-[11px] text-slate-500 mt-1.5">most clicks from</p>
             </div>
             <div className="bg-slate-800/60 rounded-xl p-4 border border-slate-700/50">
               <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-1.5">Created On</p>
@@ -222,10 +240,11 @@ export default function Analytics() {
         ) : (
           <div className="flex flex-col gap-4">
             <TrafficChart timelineData={timelineData} />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
               <DevicePieChart deviceData={deviceData} />
               <TopBrowsersChart browserData={browserData} />
               <TopLocationsChart countryData={countryData} />
+              <TopReferrersChart referrerData={referrerData} />
             </div>
           </div>
         )}
