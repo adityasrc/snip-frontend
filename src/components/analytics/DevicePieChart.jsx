@@ -20,8 +20,8 @@ export function DevicePieChart({ deviceData }) {
                 data={deviceData}
                 cx="50%"
                 cy="50%"
-                innerRadius={45}
-                outerRadius={75}
+                innerRadius={32}
+                outerRadius={55}
                 paddingAngle={4}
                 dataKey="value"
               >
