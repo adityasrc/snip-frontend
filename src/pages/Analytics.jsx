@@ -240,7 +240,7 @@ export default function Analytics() {
         ) : (
           <div className="flex flex-col gap-4">
             <TrafficChart timelineData={timelineData} />
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <DevicePieChart deviceData={deviceData} />
               <TopBrowsersChart browserData={browserData} />
               <TopLocationsChart countryData={countryData} />
