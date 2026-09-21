@@ -1,19 +1,11 @@
+import React from "react";
 import { useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import api from "../lib/api";
 import { toast } from "react-hot-toast";
-import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { Link as LinkIcon } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
+import { Link as LinkIcon, ArrowLeft, AlertCircle } from "lucide-react";
 
 export default function Signin() {
   const navigate = useNavigate();
@@ -21,7 +13,6 @@ export default function Signin() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -39,11 +30,10 @@ export default function Signin() {
     try {
       const response = await api.post(`/api/auth/signin`, {
         email: email.trim(),
-        password
+        password,
       });
 
       localStorage.setItem("token", response.data.token);
-
       navigate("/dashboard", { state: location.state });
       toast.success("Signed in successfully!");
     } catch (error) {
@@ -60,83 +50,146 @@ export default function Signin() {
   };
 
   return (
-    <div className="w-screen min-h-screen flex flex-col justify-center items-center bg-background bg-[radial-gradient(hsl(var(--border))_1px,transparent_1px)] [background-size:16px_16px] p-4 pt-10 font-sans selection:bg-primary/20">
+    <div className="min-h-screen w-full flex bg-white">
 
-      <Link to="/" className="mb-12 flex items-center gap-2.5 group hover:opacity-90 transition-opacity">
-        <div className="bg-orange-600 dark:bg-orange-500 p-1.5 rounded-xl transition-transform group-hover:-rotate-12 shadow-sm">
-          <LinkIcon className="h-6 w-6 text-white" strokeWidth={2.5} />
+      {/* ── Left panel ── */}
+      <div className="hidden lg:flex lg:w-[420px] xl:w-[480px] shrink-0 flex-col justify-between bg-[#0a0a0a] px-12 py-10 relative overflow-hidden">
+        {/* Subtle grid texture */}
+        <div
+          className="absolute inset-0 opacity-[0.04]"
+          style={{
+            backgroundImage: "radial-gradient(#ffffff 1px, transparent 1px)",
+            backgroundSize: "20px 20px",
+          }}
+        />
+
+        {/* Logo */}
+        <Link to="/" className="relative z-10 flex items-center gap-2.5 group w-fit">
+          <div className="bg-white p-1.5 rounded-lg transition-transform group-hover:-rotate-12">
+            <LinkIcon className="h-4 w-4 text-[#0a0a0a]" strokeWidth={2.5} />
+          </div>
+          <span className="font-semibold text-[16px] tracking-tight text-white">Snip</span>
+        </Link>
+
+        {/* Middle quote */}
+        <div className="relative z-10">
+          <p className="text-[22px] font-medium text-white leading-[1.4] tracking-[-0.01em] mb-6">
+            All your links.
+            <br />
+            All their analytics.
+            <br />
+            One place.
+          </p>
+          <p className="text-[14px] text-[#525252] leading-relaxed">
+            Create short links and see where every click comes from — country, device, browser. No config, no tracking scripts.
+          </p>
         </div>
-        <span className="font-extrabold text-3xl tracking-tight text-foreground">
-          Snip
-        </span>
-      </Link>
 
-      <Card className="w-full max-w-sm rounded-2xl shadow-lg border-border bg-card">
-        <CardHeader className="pb-0 text-center">
-          <CardTitle className="text-xl font-bold text-foreground">Welcome back</CardTitle>
-          <CardDescription className="text-muted-foreground">
-            Enter your credentials to access your links
-          </CardDescription>
-        </CardHeader>
+        {/* Bottom stack labels */}
+        <div className="relative z-10 flex items-center gap-2 flex-wrap">
+          {["Bun", "Express", "MongoDB", "React"].map((t) => (
+            <span key={t} className="text-[11px] font-medium text-[#404040] border border-[#262626] rounded-full px-2.5 py-1">
+              {t}
+            </span>
+          ))}
+        </div>
+      </div>
 
-        <form onSubmit={handleSubmit}>
-          <CardContent>
-            <div className="grid gap-4 mt-4">
-              <div className="grid gap-2">
-                <Label htmlFor="email" className="text-foreground">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  autoFocus
-                  placeholder="hello@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={loading}
-                  className="focus-visible:ring-orange-500 border-border placeholder:text-muted-foreground text-foreground rounded-xl bg-transparent"
-                />
+      {/* ── Right panel (form) ── */}
+      <div className="flex-1 flex flex-col justify-center items-center px-6 py-12 bg-[#fafafa]">
+
+        {/* Back link */}
+        <div className="w-full max-w-[360px] mb-8">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1.5 text-[13px] text-[#737373] hover:text-[#171717] transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" /> Back to home
+          </Link>
+        </div>
+
+        <div className="w-full max-w-[360px]">
+          {/* Header */}
+          <div className="mb-8">
+            {/* Mobile logo */}
+            <Link to="/" className="lg:hidden inline-flex items-center gap-2 mb-8 group">
+              <div className="bg-[#0a0a0a] p-1.5 rounded-lg transition-transform group-hover:-rotate-12">
+                <LinkIcon className="h-4 w-4 text-white" strokeWidth={2.5} />
               </div>
+              <span className="font-semibold text-[16px] tracking-tight text-[#0a0a0a]">Snip</span>
+            </Link>
 
-              <div className="grid gap-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-foreground">Password</Label>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={loading}
-                  className="focus-visible:ring-orange-500 border-border placeholder:text-muted-foreground text-foreground rounded-xl bg-transparent"
-                />
-              </div>
+            <h1 className="text-[24px] font-medium text-[#0a0a0a] tracking-[-0.015em] mb-1">
+              Welcome back
+            </h1>
+            <p className="text-[14px] text-[#737373]">
+              Sign in to your account to continue.
+            </p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="email" className="text-[13px] font-medium text-[#171717]">
+                Email
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                autoFocus
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
+                className="h-10 rounded-lg border-[#e5e5e5] bg-white text-[14px] text-[#171717] placeholder:text-[#a3a3a3] focus-visible:ring-2 focus-visible:ring-[#0a0a0a]/10 focus-visible:border-[#0a0a0a] transition-colors"
+              />
             </div>
-          </CardContent>
 
-          <CardFooter className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="password" className="text-[13px] font-medium text-[#171717]">
+                Password
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
+                className="h-10 rounded-lg border-[#e5e5e5] bg-white text-[14px] text-[#171717] placeholder:text-[#a3a3a3] focus-visible:ring-2 focus-visible:ring-[#0a0a0a]/10 focus-visible:border-[#0a0a0a] transition-colors"
+              />
+            </div>
+
+            {/* Error */}
             {error && (
-              <div className="w-full p-2 bg-destructive/10 border border-destructive/20 rounded-xl text-center">
-                <p className="text-sm font-medium text-destructive">{error}</p>
+              <div className="flex items-center gap-2 px-3 py-2.5 bg-red-50 border border-red-100 rounded-lg">
+                <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+                <p className="text-[13px] text-red-600">{error}</p>
               </div>
             )}
 
-            <Button
+            <button
               type="submit"
               disabled={loading || !email.trim() || !password.trim()}
-              className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold h-11 rounded-xl transition-all hover:-translate-y-[1px] active:scale-95 shadow-sm disabled:opacity-50 disabled:hover:translate-y-0"
+              className="mt-1 w-full h-10 bg-[#0a0a0a] hover:bg-[#262626] disabled:bg-[#e5e5e5] disabled:text-[#a3a3a3] disabled:cursor-not-allowed text-white rounded-full font-medium text-[14px] transition-all active:scale-[0.98]"
             >
-              {loading ? "Signing in..." : "Sign in"}
-            </Button>
+              {loading ? "Signing in…" : "Sign in"}
+            </button>
+          </form>
 
-            <p className="text-sm text-center text-muted-foreground">
-              Don't have an account?{" "}
-              <Link to="/signup" state={location.state} className="font-semibold text-foreground hover:text-orange-600 dark:hover:text-orange-500 transition-colors">
-                Sign up
-              </Link>
-            </p>
-          </CardFooter>
-        </form>
-      </Card>
+          {/* Footer link */}
+          <p className="mt-6 text-center text-[13px] text-[#737373]">
+            Don't have an account?{" "}
+            <Link
+              to="/signup"
+              state={location.state}
+              className="font-medium text-[#171717] hover:underline"
+            >
+              Sign up
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

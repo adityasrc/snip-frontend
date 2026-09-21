@@ -6,54 +6,50 @@ import { Button } from "../ui/button";
 export function EditLinkModal({ isOpen, onClose, editData, setEditData, onSubmit, isLoading }) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      {/* Consistent middle-ground sizing and clean background */}
-      <DialogContent className="sm:max-w-md p-6 bg-white border-slate-200 rounded-2xl shadow-xl">
-        
+      <DialogContent className="sm:max-w-md p-6 bg-white border-[#e5e5e5] rounded-2xl shadow-[rgba(0,0,0,0.08)_0px_8px_30px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-slate-900 tracking-tight">
+          <DialogTitle className="text-lg font-semibold text-[#0a0a0a] tracking-tight">
             Edit Link
           </DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col gap-4 py-2">
           <div className="space-y-1.5">
-            <Label className="text-[13px] font-medium text-slate-700">Destination URL *</Label>
-            <Input 
+            <Label className="text-[13px] font-medium text-[#262626]">Destination URL *</Label>
+            <Input
               autoFocus
-              className="h-10 rounded-xl border-slate-200 focus-visible:ring-orange-500 text-[14px] text-slate-900 shadow-sm" 
-              value={editData.originalUrl} 
-              onChange={e => setEditData({ ...editData, originalUrl: e.target.value })} 
+              className="h-10 rounded-xl border-[#e5e5e5] focus-visible:ring-1 focus-visible:ring-[#0a0a0a] text-[14px] text-[#0a0a0a] shadow-none"
+              value={editData.originalUrl}
+              onChange={(e) => setEditData({ ...editData, originalUrl: e.target.value })}
             />
           </div>
-          
+
           <div className="space-y-1.5">
-            <Label className="text-[13px] font-medium text-slate-700">Title</Label>
-            <Input 
-              className="h-10 rounded-xl border-slate-200 focus-visible:ring-orange-500 text-[14px] text-slate-900 shadow-sm" 
-              value={editData.title} 
-              onChange={e => setEditData({ ...editData, title: e.target.value })} 
+            <Label className="text-[13px] font-medium text-[#262626]">Title</Label>
+            <Input
+              className="h-10 rounded-xl border-[#e5e5e5] focus-visible:ring-1 focus-visible:ring-[#0a0a0a] text-[14px] text-[#0a0a0a] shadow-none"
+              value={editData.title}
+              onChange={(e) => setEditData({ ...editData, title: e.target.value })}
             />
           </div>
         </div>
 
-        {/* Structural divider with unified primary button color */}
-        <DialogFooter className="pt-4 mt-2 border-t border-slate-100 sm:justify-end sm:space-x-3">
-          <Button 
-            variant="ghost" 
-            className="h-10 px-4 rounded-xl text-[14px] font-medium text-slate-600 hover:bg-slate-100" 
+        <DialogFooter className="pt-4 mt-2 border-t border-[#f5f5f5] sm:justify-end sm:space-x-2">
+          <Button
+            variant="ghost"
+            className="h-9 px-4 rounded-full text-[13px] font-medium text-[#525252] hover:text-[#0a0a0a] hover:bg-[#f5f5f5]"
             onClick={onClose}
           >
             Cancel
           </Button>
-          <Button 
-            className="h-10 px-6 bg-orange-600 hover:bg-orange-500 text-[14px] font-bold text-white rounded-xl shadow-sm transition-all" 
-            onClick={onSubmit} 
+          <Button
+            className="h-9 px-5 bg-[#0a0a0a] hover:bg-[#262626] text-[13px] font-medium text-white rounded-full shadow-sm transition-all"
+            onClick={onSubmit}
             disabled={isLoading || !editData.originalUrl?.trim()}
           >
-            {isLoading ? "Saving..." : "Save Changes"}
+            {isLoading ? "Saving..." : "Save changes"}
           </Button>
         </DialogFooter>
-
       </DialogContent>
     </Dialog>
   );

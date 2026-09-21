@@ -10,6 +10,7 @@ import {
   Activity,
   Clock,
   Link as LinkIcon,
+  Loader2,
 } from "lucide-react";
 import { format, parseISO, subDays, formatDistanceToNow } from "date-fns";
 import { TrafficChart } from "../components/analytics/TrafficChart";
@@ -123,12 +124,12 @@ export default function Analytics() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
+      <div className="min-h-screen bg-[#fafafa] flex flex-col">
         <DashboardHeader />
         <div className="flex-1 flex justify-center items-center">
           <div className="flex flex-col items-center">
-            <Activity className="w-8 h-8 text-orange-600 dark:text-orange-500 mb-4 animate-bounce" />
-            <p className="text-muted-foreground font-medium">Crunching your numbers...</p>
+            <Loader2 className="w-8 h-8 text-[#0a0a0a] mb-4 animate-spin" />
+            <p className="text-[#737373] text-[14px] font-medium">Loading analytics...</p>
           </div>
         </div>
       </div>
@@ -137,18 +138,18 @@ export default function Analytics() {
 
   if (error || !link) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
+      <div className="min-h-screen bg-[#fafafa] flex flex-col">
         <DashboardHeader />
         <div className="flex-1 flex justify-center items-center flex-col gap-4 p-6">
-          <div className="bg-card p-8 rounded-3xl border border-border shadow-sm text-center max-w-md w-full">
-            <div className="w-16 h-16 bg-destructive/10 text-destructive rounded-full flex items-center justify-center mx-auto mb-4">
-              <Globe className="w-8 h-8" />
+          <div className="bg-white p-8 rounded-2xl border border-[#e5e5e5] shadow-sm text-center max-w-md w-full">
+            <div className="w-12 h-12 bg-[#f5f5f5] text-[#0a0a0a] rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[#e5e5e5]">
+              <Globe className="w-6 h-6" />
             </div>
-            <h2 className="text-xl font-bold text-foreground mb-2">Oops!</h2>
-            <p className="text-muted-foreground mb-6">{error || "Link data is unavailable."}</p>
+            <h2 className="text-lg font-semibold text-[#0a0a0a] mb-2">Unable to load link</h2>
+            <p className="text-[14px] text-[#737373] mb-6">{error || "Link data is unavailable."}</p>
             <Button
               onClick={() => navigate("/dashboard")}
-              className="w-full bg-foreground hover:bg-foreground/90 text-background rounded-xl h-11"
+              className="w-full bg-[#0a0a0a] hover:bg-[#262626] text-white rounded-full h-10 font-medium text-[13px]"
             >
               Back to Dashboard
             </Button>
@@ -160,36 +161,36 @@ export default function Analytics() {
 
   const createdDate = link.createdAt
     ? format(new Date(link.createdAt), "MMM dd, yyyy")
-    : "Unknown";
+    : "Recently";
 
   return (
-    <div className="min-h-screen bg-background font-sans pb-20">
+    <div className="min-h-screen bg-[#fafafa] font-sans pb-20">
       <DashboardHeader />
 
-      <div className="bg-card border-b border-border">
+      <div className="bg-white border-b border-[#e5e5e5]">
         <div className="max-w-5xl mx-auto px-6 py-6">
           <Button
             onClick={() => navigate("/dashboard")}
             variant="ghost"
             size="sm"
-            className="text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg mb-4 -ml-2 gap-2"
+            className="text-[#737373] hover:text-[#0a0a0a] hover:bg-[#f5f5f5] rounded-full mb-4 -ml-2 gap-1.5 text-[13px] font-medium"
           >
-            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+            <ArrowLeft className="w-4 h-4" /> Back to Links
           </Button>
 
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
             <div className="min-w-0">
-              <h1 className="text-xl font-bold text-foreground tracking-tight truncate mb-1">
+              <h1 className="text-xl md:text-2xl font-semibold text-[#0a0a0a] tracking-tight truncate mb-1">
                 {link.title || "Untitled Link"}
               </h1>
               <a
                 href={link.originalUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="text-muted-foreground hover:text-foreground text-[13px] flex items-center gap-1.5 truncate max-w-lg transition-colors"
+                className="text-[#737373] hover:text-[#0a0a0a] text-[13px] flex items-center gap-1.5 truncate max-w-lg transition-colors"
               >
+                <span className="truncate">{link.originalUrl}</span>
                 <ExternalLink className="w-3 h-3 shrink-0" />
-                {link.originalUrl}
               </a>
             </div>
 
@@ -197,45 +198,45 @@ export default function Analytics() {
               href={`${window.location.origin}/${link.shortId}`}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-500 hover:bg-orange-500/20 px-3 py-1.5 rounded-xl text-[13px] font-bold shrink-0 transition-colors"
+              className="inline-flex items-center gap-2 bg-[#f5f5f5] hover:bg-[#ebebeb] border border-[#e5e5e5] text-[#0a0a0a] px-3.5 py-1.5 rounded-full text-[13px] font-medium shrink-0 transition-colors"
             >
               <LinkIcon className="w-3.5 h-3.5" />
-              {window.location.host}/{link.shortId}
-              <ExternalLink className="w-3 h-3" />
+              <span>{window.location.host}/{link.shortId}</span>
+              <ExternalLink className="w-3 h-3 text-[#737373]" />
             </a>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 mt-5">
-            <div className="bg-muted/50 rounded-xl p-4 border border-border">
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">Total Clicks</p>
-              <p className="text-3xl font-bold text-foreground">{link.clicks || 0}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
+            <div className="bg-[#fafafa] rounded-2xl p-4 border border-[#e5e5e5]">
+              <p className="text-[11px] font-medium text-[#737373] uppercase tracking-[0.05em] mb-1">Total Clicks</p>
+              <p className="text-2xl font-semibold text-[#0a0a0a]">{link.clicks || 0}</p>
               {lastClickText && (
-                <p className="text-[11px] text-muted-foreground mt-1.5 flex items-center gap-1">
+                <p className="text-[12px] text-[#737373] mt-1 flex items-center gap-1">
                   <Clock className="w-3 h-3" /> {lastClickText}
                 </p>
               )}
             </div>
-            <div className="bg-muted/50 rounded-xl p-4 border border-border">
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">Top Country</p>
-              <p className="text-3xl font-bold text-foreground">{topCountry}</p>
-              <p className="text-[11px] text-muted-foreground mt-1.5">most clicks from</p>
+            <div className="bg-[#fafafa] rounded-2xl p-4 border border-[#e5e5e5]">
+              <p className="text-[11px] font-medium text-[#737373] uppercase tracking-[0.05em] mb-1">Top Country</p>
+              <p className="text-2xl font-semibold text-[#0a0a0a]">{topCountry}</p>
+              <p className="text-[12px] text-[#a3a3a3] mt-1">most traffic from</p>
             </div>
-            <div className="bg-muted/50 rounded-xl p-4 border border-border">
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">Created On</p>
-              <p className="text-xl font-bold text-foreground mt-1">{createdDate}</p>
+            <div className="bg-[#fafafa] rounded-2xl p-4 border border-[#e5e5e5]">
+              <p className="text-[11px] font-medium text-[#737373] uppercase tracking-[0.05em] mb-1">Created</p>
+              <p className="text-xl font-semibold text-[#0a0a0a] mt-1">{createdDate}</p>
             </div>
           </div>
         </div>
       </div>
 
-      <main className="max-w-5xl mx-auto px-6 mt-5 pb-4">
+      <main className="max-w-5xl mx-auto px-6 mt-6 pb-4">
         {clicks.length === 0 ? (
-          <div className="bg-card p-12 rounded-3xl border border-dashed border-border text-center">
-            <div className="w-16 h-16 bg-muted text-muted-foreground rounded-full flex items-center justify-center mx-auto mb-4">
-              <Activity className="w-8 h-8" />
+          <div className="bg-white p-12 rounded-2xl border border-dashed border-[#e5e5e5] text-center shadow-[rgba(0,0,0,0.02)_0px_1px_2px_0px]">
+            <div className="w-12 h-12 bg-[#f5f5f5] text-[#737373] rounded-2xl flex items-center justify-center mx-auto mb-3 border border-[#e5e5e5]">
+              <Activity className="w-5 h-5" />
             </div>
-            <h3 className="text-xl font-bold text-foreground mb-2">No traffic yet</h3>
-            <p className="text-muted-foreground">Share your short link to start seeing analytics here.</p>
+            <h3 className="text-lg font-semibold text-[#0a0a0a] mb-1">No clicks recorded yet</h3>
+            <p className="text-[14px] text-[#737373]">Share your short link to start seeing real-time visitor analytics.</p>
           </div>
         ) : (
           <div className="flex flex-col gap-4">

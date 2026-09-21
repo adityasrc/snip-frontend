@@ -12,7 +12,7 @@ export default function RedirectHandler() {
     if (document.referrer) {
       try {
         ref = new URL(document.referrer).hostname;
-      } catch (error) {
+      } catch {
         ref = "Unknown";
       }
     }
@@ -26,9 +26,9 @@ export default function RedirectHandler() {
 
   // Prevent white flash by rendering a themed full-screen loader
   return (
-    <div className="h-screen w-screen flex flex-col items-center justify-center bg-background text-foreground">
-      <Loader2 className="h-8 w-8 animate-spin text-orange-600 dark:text-orange-500 mb-4" />
-      <p className="text-sm font-medium text-muted-foreground animate-pulse">
+    <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#fafafa] text-[#0a0a0a]">
+      <Loader2 className="h-7 w-7 animate-spin text-[#0a0a0a] mb-3" />
+      <p className="text-[13px] font-medium text-[#737373] animate-pulse font-mono">
         Redirecting...
       </p>
     </div>

@@ -7,19 +7,16 @@ export function LandingHeader() {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoggedIn] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const token = localStorage.getItem("token");
+    return !!(token && token !== "undefined" && token !== "null");
+  });
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!(token && token !== "undefined" && token !== "null"));
-    setIsLoading(false);
   }, []);
 
   const scrollToSection = (e, id) => {
@@ -33,26 +30,29 @@ export function LandingHeader() {
 
   return (
     <header
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled
-          ? "bg-background/80 backdrop-blur-md border-b border-border shadow-sm py-3"
+      className={`landing-header fixed top-0 w-full z-50 transition-all duration-300 ${
+        isScrolled
+          ? "bg-white/90 backdrop-blur-md border-b border-[#e5e5e5] shadow-[rgba(0,0,0,0.05)_0px_1px_2px_0px] py-3"
           : "bg-transparent py-5"
-        }`}
+      }`}
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 relative">
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="bg-orange-600 dark:bg-orange-500 p-1.5 rounded-xl transition-transform group-hover:-rotate-12">
-            <LinkIcon className="h-5 w-5 text-white" strokeWidth={2.5} />
+      <div className="max-w-[1200px] mx-auto flex items-center justify-between px-6 relative">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2 group">
+          <div className="bg-[#0a0a0a] p-1.5 rounded-lg transition-transform group-hover:-rotate-12">
+            <LinkIcon className="h-4 w-4 text-white" strokeWidth={2.5} />
           </div>
-          <span className="font-extrabold text-[20px] tracking-tight text-foreground">
+          <span className="font-semibold text-[16px] tracking-tight text-[#171717]">
             Snip
           </span>
         </Link>
 
-        <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-1 bg-card border border-border rounded-full px-2 py-1.5 shadow-sm">
+        {/* Desktop nav — centered pill */}
+        <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-0.5 bg-white border border-[#e5e5e5] rounded-full px-2 py-1.5 shadow-[rgba(0,0,0,0.05)_0px_1px_2px_0px]">
           <a
             href="#how-it-works"
             onClick={(e) => scrollToSection(e, "how-it-works")}
-            className="text-[13px] font-medium text-muted-foreground hover:text-orange-600 dark:hover:text-orange-500 px-4 py-1.5 transition-colors"
+            className="text-[14px] font-medium text-[#525252] hover:text-[#171717] hover:bg-[#f5f5f5] px-4 py-1.5 rounded-full transition-colors"
           >
             How it works
           </a>
@@ -61,66 +61,67 @@ export function LandingHeader() {
             href="https://github.com/adityasrc/snip-frontend"
             target="_blank"
             rel="noreferrer"
-            className="text-[13px] font-medium text-muted-foreground hover:text-orange-600 dark:hover:text-orange-500 px-4 py-1.5 transition-colors"
+            className="text-[14px] font-medium text-[#525252] hover:text-[#171717] hover:bg-[#f5f5f5] px-4 py-1.5 rounded-full transition-colors"
           >
             GitHub
           </a>
 
           <Link
             to="/docs"
-            className="text-[13px] font-medium text-muted-foreground hover:text-orange-600 dark:hover:text-orange-500 px-4 py-1.5 transition-colors"
+            className="text-[14px] font-medium text-[#525252] hover:text-[#171717] hover:bg-[#f5f5f5] px-4 py-1.5 rounded-full transition-colors"
           >
             API Docs
           </Link>
         </nav>
 
-        <div className="hidden md:flex items-center gap-3">
-          {isLoading ? (
-            <div className="w-24 h-9 bg-muted animate-pulse rounded-xl" />
-          ) : isLoggedIn ? (
+        {/* Desktop CTA cluster */}
+        <div className="hidden md:flex items-center gap-2">
+          {isLoggedIn ? (
             <Button
               size="sm"
-              className="bg-orange-600 text-white hover:bg-orange-500 rounded-xl px-5 transition-all"
+              className="bg-[#0a0a0a] text-white hover:bg-[#262626] rounded-full px-5 h-9 text-[14px] font-medium shadow-[rgba(0,0,0,0.05)_0px_1px_2px_0px] transition-all"
               onClick={() => navigate("/dashboard")}
             >
-              Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+              Dashboard <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
             </Button>
           ) : (
             <>
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                className="text-[13px] text-muted-foreground hover:text-orange-600 dark:hover:text-orange-500 transition-colors bg-transparent hover:bg-transparent"
+                className="bg-white text-[#171717] border border-[#e5e5e5] hover:bg-[#f5f5f5] hover:border-[#d4d4d4] rounded-full px-4 h-9 text-[14px] font-medium transition-all"
                 onClick={() => navigate("/signin")}
               >
-                Log In
+                Log in
               </Button>
 
               <Button
                 size="sm"
-                className="bg-orange-600 text-white hover:bg-orange-500 rounded-xl px-5 transition-all"
+                className="bg-[#0a0a0a] text-white hover:bg-[#262626] rounded-full px-5 h-9 text-[14px] font-medium shadow-[rgba(0,0,0,0.05)_0px_1px_2px_0px] transition-all"
                 onClick={() => navigate("/signup")}
               >
-                Sign Up Free
+                Sign up
               </Button>
             </>
           )}
         </div>
 
+        {/* Mobile menu toggle */}
         <button
-          className="md:hidden p-2 rounded-xl hover:bg-muted text-foreground border border-transparent hover:border-border transition-all"
+          className="md:hidden p-2 rounded-lg hover:bg-[#f5f5f5] text-[#171717] border border-transparent hover:border-[#e5e5e5] transition-all"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
-          {isMobileMenuOpen ? <X /> : <Menu />}
+          {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
+      {/* Mobile menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-background border-b border-border shadow-lg py-4 px-6 flex flex-col gap-4">
+        <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-[#e5e5e5] shadow-[rgba(0,0,0,0.05)_0px_4px_6px_-1px] py-4 px-6 flex flex-col gap-1">
           <a
             href="#how-it-works"
             onClick={(e) => scrollToSection(e, "how-it-works")}
-            className="text-[15px] font-medium text-muted-foreground hover:text-orange-600 dark:hover:text-orange-500 transition-colors"
+            className="text-[15px] font-medium text-[#525252] hover:text-[#171717] hover:bg-[#f5f5f5] px-3 py-2.5 rounded-lg transition-colors"
           >
             How it works
           </a>
@@ -128,21 +129,22 @@ export function LandingHeader() {
             href="https://github.com/adityasrc/snip-frontend"
             target="_blank"
             rel="noreferrer"
-            className="text-[15px] font-medium text-muted-foreground hover:text-orange-600 dark:hover:text-orange-500 transition-colors"
+            className="text-[15px] font-medium text-[#525252] hover:text-[#171717] hover:bg-[#f5f5f5] px-3 py-2.5 rounded-lg transition-colors"
           >
             GitHub
           </a>
           <Link
             to="/docs"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="text-[15px] font-medium text-muted-foreground hover:text-orange-600 dark:hover:text-orange-500 transition-colors"
+            className="text-[15px] font-medium text-[#525252] hover:text-[#171717] hover:bg-[#f5f5f5] px-3 py-2.5 rounded-lg transition-colors"
           >
             API Docs
           </Link>
-          <div className="flex flex-col gap-3 mt-2 pt-4 border-t border-border">
+
+          <div className="flex flex-col gap-2 mt-3 pt-4 border-t border-[#e5e5e5]">
             {isLoggedIn ? (
               <Button
-                className="w-full bg-orange-600 text-white hover:bg-orange-500 rounded-xl transition-all"
+                className="w-full bg-[#0a0a0a] text-white hover:bg-[#262626] rounded-full h-10 text-[14px] font-medium transition-all"
                 onClick={() => {
                   navigate("/dashboard");
                   setIsMobileMenuOpen(false);
@@ -154,22 +156,22 @@ export function LandingHeader() {
               <>
                 <Button
                   variant="outline"
-                  className="w-full rounded-xl border-border text-foreground hover:text-orange-600 dark:hover:text-orange-500 hover:border-orange-500/30 transition-all bg-transparent"
+                  className="w-full bg-white text-[#171717] border border-[#e5e5e5] hover:bg-[#f5f5f5] rounded-full h-10 text-[14px] font-medium transition-all"
                   onClick={() => {
                     navigate("/signin");
                     setIsMobileMenuOpen(false);
                   }}
                 >
-                  Log In
+                  Log in
                 </Button>
                 <Button
-                  className="w-full bg-orange-600 text-white hover:bg-orange-500 rounded-xl transition-all"
+                  className="w-full bg-[#0a0a0a] text-white hover:bg-[#262626] rounded-full h-10 text-[14px] font-medium transition-all"
                   onClick={() => {
                     navigate("/signup");
                     setIsMobileMenuOpen(false);
                   }}
                 >
-                  Sign Up Free
+                  Sign up
                 </Button>
               </>
             )}

@@ -2,7 +2,7 @@
 
 React frontend for the Snip URL shortener. Clean, component-driven architecture with a professional analytics dashboard.
 
-**Live:** [https://getsnip.vercel.app](https://getsnip.vercel.app)
+**Live:** [https://sniphq.vercel.app](https://getsnip.vercel.app)
 **Backend repo:** [https://github.com/adityasrc/snip-backend](https://github.com/adityasrc/snip-backend)
 
 ## Tech Stack

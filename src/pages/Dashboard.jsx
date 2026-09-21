@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from "../lib/api";
 import toast from "react-hot-toast";
@@ -16,7 +16,6 @@ import { QrModal } from "../components/modals/QrModal";
 export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
-  const currentHost = window.location.host;
 
   const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,37 +33,37 @@ export default function Dashboard() {
   const [selectedQr, setSelectedQr] = useState({ url: "", title: "" });
   const [submitLoading, setSubmitLoading] = useState(false);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/signin");
-      return;
-    }
-    fetchLinks(token);
-
-    const prefillUrl = location.state?.prefillUrl;
-    if (prefillUrl) {
-      setFormData(prev => ({ ...prev, originalUrl: prefillUrl }));
-      setIsModalOpen(true);
-    }
-  }, []);
-
-  async function fetchLinks(token) {
+  const fetchLinks = useCallback(async () => {
     try {
       const res = await api.get(`/api/links`);
-      setLinks(res.data.links);
+      setLinks(res.data.links || []);
     } catch (e) {
       if (e.response?.status === 401) {
         localStorage.removeItem("token");
         navigate("/signin");
-        toast.error("Session expired. Please login again.");
+        toast.error("Session expired. Please sign in again.");
       } else {
         toast.error("Failed to load links");
       }
     } finally {
       setLoading(false);
     }
-  }
+  }, [navigate]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/signin");
+      return;
+    }
+    fetchLinks();
+
+    const prefillUrl = location.state?.prefillUrl;
+    if (prefillUrl) {
+      setFormData((prev) => ({ ...prev, originalUrl: prefillUrl }));
+      setIsModalOpen(true);
+    }
+  }, [fetchLinks, location.state?.prefillUrl, navigate]);
 
   async function handleCreate() {
     if (!formData.originalUrl.trim()) return toast.error("URL is required");
@@ -79,13 +78,13 @@ export default function Dashboard() {
         clicks: 0,
         qrCode: res.data.qrDataUrl,
         shortId: res.data.finalId,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
 
-      setLinks(prev => [newLink, ...prev]);
+      setLinks((prev) => [newLink, ...prev]);
       setIsModalOpen(false);
       setFormData({ title: "", originalUrl: "", customAlias: "", expiresAt: "" });
-      toast.success("Link Snapped!");
+      toast.success("Link created!");
     } catch (e) {
       toast.error(e.response?.data?.message || "Error creating link");
     } finally {
@@ -97,30 +96,38 @@ export default function Dashboard() {
     if (!editData.originalUrl.trim()) return toast.error("URL cannot be empty");
     setSubmitLoading(true);
     try {
-      await api.patch(`/api/links/${editData.id}`,
-        { title: editData.title, originalUrl: editData.originalUrl }
+      await api.patch(`/api/links/${editData.id}`, {
+        title: editData.title,
+        originalUrl: editData.originalUrl,
+      });
+
+      setLinks((prev) =>
+        prev.map((l) =>
+          l._id === editData.id
+            ? { ...l, title: editData.title, originalUrl: editData.originalUrl }
+            : l
+        )
       );
 
-      setLinks(prev => prev.map(l => l._id === editData.id ? { ...l, title: editData.title, originalUrl: editData.originalUrl } : l));
       setIsEditModalOpen(false);
-      toast.success("Link Updated");
+      toast.success("Link updated");
     } catch (e) {
-      toast.error("Update failed");
+      toast.error(e.response?.data?.message || "Failed to update link");
     } finally {
       setSubmitLoading(false);
     }
   }
 
   async function handleDelete() {
+    if (!linkToDelete) return;
     setSubmitLoading(true);
     try {
       await api.delete(`/api/links/${linkToDelete}`);
-
-      setLinks(prev => prev.filter(l => l._id !== linkToDelete));
+      setLinks((prev) => prev.filter((l) => l._id !== linkToDelete));
       setIsDeleteModalOpen(false);
-      toast.success("Link Deleted");
+      toast.success("Link deleted");
     } catch (e) {
-      toast.error("Delete failed");
+      toast.error(e.response?.data?.message || "Failed to delete link");
     } finally {
       setSubmitLoading(false);
       setLinkToDelete(null);
@@ -134,75 +141,87 @@ export default function Dashboard() {
     setTimeout(() => setCopiedLink(null), 2000);
   };
 
-  const filteredLinks = links.filter(link =>
-    (link.title && link.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (link.originalUrl && link.originalUrl.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (link.shortId && link.shortId.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredLinks = links.filter(
+    (link) =>
+      (link.title && link.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (link.originalUrl && link.originalUrl.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (link.shortId && link.shortId.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (
-    <div className="min-h-screen bg-background font-sans pb-20">
+    <div className="dashboard-page min-h-screen bg-[#f4f6f9] font-sans pb-20">
       <DashboardHeader />
 
-      <main className="max-w-5xl mx-auto p-6 mt-6">
+      <main className="max-w-6xl mx-auto px-6 pt-10">
+        {/* Header row */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-          <h1 className="text-3xl font-extrabold text-foreground tracking-tighter">Your Links</h1>
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-semibold text-[#0a0a0a] tracking-tight">
+              Links
+            </h1>
+            <p className="text-[14px] text-[#737373] mt-0.5">
+              Manage and track your shortened links.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full md:w-auto">
             <div className="relative w-full sm:w-64">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a3a3a3]" />
               <Input
                 type="text"
                 placeholder="Search links..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 bg-card border-border text-foreground focus-visible:ring-orange-500 rounded-xl w-full"
+                className="pl-9 pr-3 bg-white border-[#e5e5e5] text-[#0a0a0a] focus-visible:ring-1 focus-visible:ring-[#0a0a0a] rounded-full text-[13px] h-9 w-full shadow-[rgba(0,0,0,0.03)_0px_1px_2px_0px]"
               />
             </div>
             <Button
-              className="bg-orange-600 hover:bg-orange-500 text-white rounded-xl shadow-sm transition-all font-bold px-5 w-full sm:w-auto"
+              className="bg-[#0a0a0a] hover:bg-[#262626] text-white rounded-full shadow-[rgba(0,0,0,0.06)_0px_1px_2px_0px] transition-all font-medium text-[13px] h-9 px-4 w-full sm:w-auto inline-flex items-center gap-1.5"
               onClick={() => setIsModalOpen(true)}
             >
-              <Plus className="w-5 h-5 mr-2" strokeWidth={2.5} /> Create Link
+              <Plus className="w-4 h-4" /> Create Link
             </Button>
           </div>
         </div>
 
+        {/* Stats */}
         {!loading && links.length > 0 && <DashboardStats links={links} />}
 
+        {/* Links list */}
         {loading ? (
-          <div className="grid gap-5">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="bg-card rounded-2xl h-28 w-full border border-border animate-pulse" />
+          <div className="grid gap-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-2xl h-24 w-full border border-[#e5e5e5] animate-pulse" />
             ))}
           </div>
         ) : links.length === 0 ? (
-          <div className="text-center py-20 px-6 bg-card rounded-3xl border border-dashed border-border shadow-sm mt-8">
-            <div className="bg-orange-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <LinkIcon className="w-8 h-8 text-orange-600 dark:text-orange-500" />
+          <div className="text-center py-20 px-6 bg-white rounded-2xl border border-dashed border-[#e5e5e5] shadow-[rgba(0,0,0,0.02)_0px_1px_2px_0px] mt-4">
+            <div className="bg-[#f5f5f5] w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[#e5e5e5]">
+              <LinkIcon className="w-5 h-5 text-[#0a0a0a]" />
             </div>
-            <h2 className="text-xl font-bold text-foreground mb-2">No links created yet</h2>
-            <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-              You haven't shortened any URLs yet. Create your first Snip to start tracking analytics.
+            <h2 className="text-[17px] font-semibold text-[#0a0a0a] mb-1.5">No links created yet</h2>
+            <p className="text-[14px] text-[#737373] mb-6 max-w-sm mx-auto leading-relaxed">
+              Shorten your first URL to begin tracking real-time click analytics and QR codes.
             </p>
             <Button
-              className="bg-foreground hover:bg-foreground/90 text-background rounded-xl shadow-sm"
+              className="bg-[#0a0a0a] hover:bg-[#262626] text-white rounded-full px-5 h-9 font-medium text-[13px] shadow-sm inline-flex items-center gap-1.5"
               onClick={() => setIsModalOpen(true)}
             >
-              <Plus className="w-4 h-4 mr-2" /> Create your first link
+              <Plus className="w-4 h-4" /> Create your first link
             </Button>
           </div>
         ) : filteredLinks.length === 0 ? (
-          <div className="text-center py-20 px-6 bg-card rounded-3xl border border-dashed border-border shadow-sm mt-8">
-            <div className="bg-muted w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-8 h-8 text-muted-foreground" />
+          <div className="text-center py-20 px-6 bg-white rounded-2xl border border-dashed border-[#e5e5e5] shadow-[rgba(0,0,0,0.02)_0px_1px_2px_0px] mt-4">
+            <div className="bg-[#f5f5f5] w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[#e5e5e5]">
+              <Search className="w-5 h-5 text-[#737373]" />
             </div>
-            <h2 className="text-xl font-bold text-foreground mb-2">No results found</h2>
-            <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-              We couldn't find any links matching "{searchQuery}".
+            <h2 className="text-[17px] font-semibold text-[#0a0a0a] mb-1.5">No results found</h2>
+            <p className="text-[14px] text-[#737373] mb-6 max-w-sm mx-auto leading-relaxed">
+              No links matched "{searchQuery}".
             </p>
             <Button
               variant="outline"
-              className="bg-transparent border-border text-foreground hover:bg-muted rounded-xl"
+              className="bg-white border-[#e5e5e5] text-[#0a0a0a] hover:bg-[#f5f5f5] rounded-full px-4 h-9 text-[13px] font-medium"
               onClick={() => setSearchQuery("")}
             >
               Clear search
@@ -214,12 +233,20 @@ export default function Dashboard() {
               <LinkCard
                 key={link._id}
                 link={link}
-                currentHost={currentHost}
                 copiedLink={copiedLink}
                 onCopy={copyToClipboard}
-                onEdit={(data) => { setEditData(data); setIsEditModalOpen(true); }}
-                onDelete={(id) => { setLinkToDelete(id); setIsDeleteModalOpen(true); }}
-                onQr={(data) => { setSelectedQr(data); setIsQrModalOpen(true); }}
+                onEdit={(data) => {
+                  setEditData(data);
+                  setIsEditModalOpen(true);
+                }}
+                onDelete={(id) => {
+                  setLinkToDelete(id);
+                  setIsDeleteModalOpen(true);
+                }}
+                onQr={(data) => {
+                  setSelectedQr(data);
+                  setIsQrModalOpen(true);
+                }}
               />
             ))}
           </div>
