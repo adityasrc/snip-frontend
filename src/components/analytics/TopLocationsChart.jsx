@@ -1,13 +1,19 @@
 import { MapPin } from "lucide-react";
 import { RankedListCard } from "./RankedListCard";
+import { formatCountry } from "../../lib/utils";
 
-export function TopLocationsChart({ countryData }) {
+export function TopLocationsChart({ countryData = [] }) {
+  const formattedData = countryData.map((item) => ({
+    ...item,
+    name: formatCountry(item.name),
+  }));
+
   return (
     <RankedListCard
       title="Top Locations"
-      icon={<MapPin className="w-4 h-4 text-slate-400" />}
-      data={countryData}
-      color="#f59e0b"
+      icon={<MapPin className="w-4 h-4 text-muted-foreground" />}
+      data={formattedData}
+      barColor="bg-emerald-600"
     />
   );
 }

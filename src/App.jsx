@@ -1,21 +1,25 @@
 import { Suspense, lazy } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
-
 const Landing = lazy(() => import("./pages/Landing"));
-const Signup = lazy(() => import("./pages/signup"));
-const Signin = lazy(() => import("./pages/signin"));
+const Signup = lazy(() => import("./pages/Signup"));
+const Signin = lazy(() => import("./pages/Signin"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Analytics = lazy(() => import("./pages/Analytics"));
-const Docs = lazy(() => import("./pages/Docs"));
-const RedirectHandler = lazy(() => import("./pages/RedirectHandler"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-// Simple fallback loader
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return <Navigate replace to="/signin" />;
+  }
+  return children ? children : <Outlet />;
+};
+
 const PageLoader = () => (
   <div className="flex h-screen w-screen items-center justify-center bg-background">
-    <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+    <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-zinc-900"></div>
   </div>
 );
 
@@ -27,10 +31,22 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/signin" element={<Signin />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/analytics/:id" element={<Analytics />} />
-          <Route path="/docs" element={<Docs />} />
-          <Route path="/:shortId" element={<RedirectHandler />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/analytics/:id"
+            element={
+              <ProtectedRoute>
+                <Analytics />
+              </ProtectedRoute>
+            }
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

@@ -11,36 +11,33 @@ export function DashboardStats({ links }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-      {/* Total Links */}
-      <div className="stat-card bg-white border border-[#e1e5eb] rounded-xl p-5 shadow-none flex items-center gap-4 hover:border-[#b9c4d4] transition-colors">
-        <div className="bg-[#f5f5f5] w-11 h-11 rounded-xl flex items-center justify-center border border-[#e5e5e5]">
-          <Link2 className="w-5 h-5 text-[#0a0a0a]" />
+      <div className="stat-card bg-background border border-border rounded-2xl p-5 flex items-center gap-4 hover:shadow-sm transition-all">
+        <div className="bg-muted w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border border-border">
+          <Link2 className="w-5 h-5 text-foreground" />
         </div>
         <div>
-          <p className="text-[12px] font-medium text-[#737373] uppercase tracking-[0.05em]">Total Links</p>
-          <p className="text-2xl font-semibold text-[#0a0a0a] tracking-tight">{totalLinks}</p>
+          <p className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">Total Links</p>
+          <p className="text-3xl font-semibold text-foreground tracking-tight">{totalLinks}</p>
         </div>
       </div>
 
-      {/* Total Clicks */}
-      <div className="stat-card bg-white border border-[#e1e5eb] rounded-xl p-5 shadow-none flex items-center gap-4 hover:border-[#b9c4d4] transition-colors">
-        <div className="bg-[#eff6ff] w-11 h-11 rounded-xl flex items-center justify-center border border-[#dbeafe]">
-          <BarChart3 className="w-5 h-5 text-[#2563eb]" />
+      <div className="stat-card bg-background border border-border rounded-2xl p-5 flex items-center gap-4 hover:shadow-sm transition-all">
+        <div className="bg-blue-50 w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border border-blue-600/20">
+          <BarChart3 className="w-5 h-5 text-blue-600" />
         </div>
         <div>
-          <p className="text-[12px] font-medium text-[#737373] uppercase tracking-[0.05em]">Total Clicks</p>
-          <p className="text-2xl font-semibold text-[#0a0a0a] tracking-tight">{totalClicks}</p>
+          <p className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">Total Clicks</p>
+          <p className="text-3xl font-semibold text-foreground tracking-tight">{totalClicks}</p>
         </div>
       </div>
 
-      {/* Active Links */}
-      <div className="stat-card bg-white border border-[#e1e5eb] rounded-xl p-5 shadow-none flex items-center gap-4 hover:border-[#b9c4d4] transition-colors">
-        <div className="bg-[#f0fdf4] w-11 h-11 rounded-xl flex items-center justify-center border border-[#dcfce7]">
-          <Activity className="w-5 h-5 text-[#16a34a]" />
+      <div className="stat-card bg-background border border-border rounded-2xl p-5 flex items-center gap-4 hover:shadow-sm transition-all">
+        <div className="bg-green-50 w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border border-green-600/20">
+          <Activity className="w-5 h-5 text-green-600" />
         </div>
         <div>
-          <p className="text-[12px] font-medium text-[#737373] uppercase tracking-[0.05em]">Active Links</p>
-          <p className="text-2xl font-semibold text-[#0a0a0a] tracking-tight">{activeLinks}</p>
+          <p className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">Active Links</p>
+          <p className="text-3xl font-semibold text-foreground tracking-tight">{activeLinks}</p>
         </div>
       </div>
     </div>

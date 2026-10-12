@@ -11,7 +11,6 @@ import { Plus, Link as LinkIcon, Search } from "lucide-react";
 import { CreateLinkModal } from "../components/modals/CreateLinkModal";
 import { EditLinkModal } from "../components/modals/EditLinkModal";
 import { DeleteLinkModal } from "../components/modals/DeleteLinkModal";
-import { QrModal } from "../components/modals/QrModal";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -25,12 +24,10 @@ export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
   const [formData, setFormData] = useState({ title: "", originalUrl: "", customAlias: "", expiresAt: "" });
   const [editData, setEditData] = useState({ id: null, title: "", originalUrl: "" });
   const [linkToDelete, setLinkToDelete] = useState(null);
-  const [selectedQr, setSelectedQr] = useState({ url: "", title: "" });
   const [submitLoading, setSubmitLoading] = useState(false);
 
   const fetchLinks = useCallback(async () => {
@@ -56,6 +53,7 @@ export default function Dashboard() {
       navigate("/signin");
       return;
     }
+
     fetchLinks();
 
     const prefillUrl = location.state?.prefillUrl;
@@ -66,17 +64,25 @@ export default function Dashboard() {
   }, [fetchLinks, location.state?.prefillUrl, navigate]);
 
   async function handleCreate() {
-    if (!formData.originalUrl.trim()) return toast.error("URL is required");
+    const originalUrl = formData.originalUrl.trim();
+    if (!originalUrl) return toast.error("URL is required");
+
+    const payload = {
+      originalUrl,
+      title: formData.title.trim() || undefined,
+      customAlias: formData.customAlias.trim() || undefined,
+      expiresAt: formData.expiresAt ? new Date(formData.expiresAt).toISOString() : undefined,
+    };
+
     setSubmitLoading(true);
     try {
-      const res = await api.post(`/api/links/shorten`, formData);
+      const res = await api.post(`/api/links/shorten`, payload);
       const newLink = {
         ...res.data,
         _id: res.data._id,
-        title: formData.title || "Untitled",
-        originalUrl: formData.originalUrl,
+        title: payload.title || "Untitled",
+        originalUrl: payload.originalUrl,
         clicks: 0,
-        qrCode: res.data.qrDataUrl,
         shortId: res.data.finalId,
         createdAt: new Date().toISOString(),
       };
@@ -93,18 +99,22 @@ export default function Dashboard() {
   }
 
   async function handleEdit() {
-    if (!editData.originalUrl.trim()) return toast.error("URL cannot be empty");
+    const originalUrl = editData.originalUrl.trim();
+    if (!originalUrl) return toast.error("URL cannot be empty");
+
+    const payload = {
+      originalUrl,
+      title: editData.title.trim() || undefined,
+    };
+
     setSubmitLoading(true);
     try {
-      await api.patch(`/api/links/${editData.id}`, {
-        title: editData.title,
-        originalUrl: editData.originalUrl,
-      });
+      await api.patch(`/api/links/${editData.id}`, payload);
 
       setLinks((prev) =>
         prev.map((l) =>
           l._id === editData.id
-            ? { ...l, title: editData.title, originalUrl: editData.originalUrl }
+            ? { ...l, title: payload.title || l.title, originalUrl: payload.originalUrl }
             : l
         )
       );
@@ -149,34 +159,33 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="dashboard-page min-h-screen bg-[#f4f6f9] font-sans pb-20">
+    <div className="min-h-screen bg-background font-sans pb-20">
       <DashboardHeader />
 
       <main className="max-w-6xl mx-auto px-6 pt-10">
-        {/* Header row */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-semibold text-[#0a0a0a] tracking-tight">
+            <h1 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
               Links
             </h1>
-            <p className="text-[14px] text-[#737373] mt-0.5">
+            <p className="text-sm text-muted-foreground mt-0.5">
               Manage and track your shortened links.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full md:w-auto">
             <div className="relative w-full sm:w-64">
-              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a3a3a3]" />
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="Search links..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-3 bg-white border-[#e5e5e5] text-[#0a0a0a] focus-visible:ring-1 focus-visible:ring-[#0a0a0a] rounded-full text-[13px] h-9 w-full shadow-[rgba(0,0,0,0.03)_0px_1px_2px_0px]"
+                className="pl-9 pr-3 bg-background border-border text-foreground focus-visible:ring-1 focus-visible:ring-ring rounded-full text-sm h-9 w-full shadow-sm"
               />
             </div>
             <Button
-              className="bg-[#0a0a0a] hover:bg-[#262626] text-white rounded-full shadow-[rgba(0,0,0,0.06)_0px_1px_2px_0px] transition-all font-medium text-[13px] h-9 px-4 w-full sm:w-auto inline-flex items-center gap-1.5"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-sm transition-all font-medium text-sm h-9 px-4 w-full sm:w-auto inline-flex items-center gap-1.5"
               onClick={() => setIsModalOpen(true)}
             >
               <Plus className="w-4 h-4" /> Create Link
@@ -184,44 +193,62 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Stats */}
         {!loading && links.length > 0 && <DashboardStats links={links} />}
 
-        {/* Links list */}
         {loading ? (
           <div className="grid gap-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-2xl h-24 w-full border border-[#e5e5e5] animate-pulse" />
+              <div
+                key={i}
+                className="bg-background rounded-2xl p-5 border border-border h-[140px] flex flex-col justify-between animate-pulse"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-6 h-6 rounded-full bg-muted" />
+                    <div className="h-4 w-36 rounded bg-muted" />
+                  </div>
+                  <div className="h-3 w-20 rounded bg-muted" />
+                </div>
+                <div className="h-3 w-64 rounded bg-muted" />
+                <div className="flex items-center justify-between pt-1">
+                  <div className="h-7 w-40 rounded-full bg-muted" />
+                  <div className="flex gap-2">
+                    <div className="h-8 w-14 rounded-full bg-muted" />
+                    <div className="h-8 w-8 rounded-full bg-muted" />
+                    <div className="h-8 w-8 rounded-full bg-muted" />
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         ) : links.length === 0 ? (
-          <div className="text-center py-20 px-6 bg-white rounded-2xl border border-dashed border-[#e5e5e5] shadow-[rgba(0,0,0,0.02)_0px_1px_2px_0px] mt-4">
-            <div className="bg-[#f5f5f5] w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[#e5e5e5]">
-              <LinkIcon className="w-5 h-5 text-[#0a0a0a]" />
+          <div className="text-center py-20 px-6 bg-background rounded-2xl border border-dashed border-border shadow-sm mt-4">
+            <div className="bg-muted w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-border">
+              <LinkIcon className="w-5 h-5 text-foreground" />
             </div>
-            <h2 className="text-[17px] font-semibold text-[#0a0a0a] mb-1.5">No links created yet</h2>
-            <p className="text-[14px] text-[#737373] mb-6 max-w-sm mx-auto leading-relaxed">
-              Shorten your first URL to begin tracking real-time click analytics and QR codes.
+            <h2 className="text-[17px] font-semibold text-foreground mb-1.5">No links created yet</h2>
+            <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto leading-relaxed">
+              Shorten your first URL to begin tracking real-time click analytics.
             </p>
             <Button
-              className="bg-[#0a0a0a] hover:bg-[#262626] text-white rounded-full px-5 h-9 font-medium text-[13px] shadow-sm inline-flex items-center gap-1.5"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-5 h-9 font-medium text-sm shadow-sm inline-flex items-center gap-1.5"
               onClick={() => setIsModalOpen(true)}
             >
               <Plus className="w-4 h-4" /> Create your first link
             </Button>
           </div>
         ) : filteredLinks.length === 0 ? (
-          <div className="text-center py-20 px-6 bg-white rounded-2xl border border-dashed border-[#e5e5e5] shadow-[rgba(0,0,0,0.02)_0px_1px_2px_0px] mt-4">
-            <div className="bg-[#f5f5f5] w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[#e5e5e5]">
-              <Search className="w-5 h-5 text-[#737373]" />
+          <div className="text-center py-20 px-6 bg-background rounded-2xl border border-dashed border-border shadow-sm mt-4">
+            <div className="bg-muted w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-border">
+              <Search className="w-5 h-5 text-muted-foreground" />
             </div>
-            <h2 className="text-[17px] font-semibold text-[#0a0a0a] mb-1.5">No results found</h2>
-            <p className="text-[14px] text-[#737373] mb-6 max-w-sm mx-auto leading-relaxed">
+            <h2 className="text-[17px] font-semibold text-foreground mb-1.5">No results found</h2>
+            <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto leading-relaxed">
               No links matched "{searchQuery}".
             </p>
             <Button
               variant="outline"
-              className="bg-white border-[#e5e5e5] text-[#0a0a0a] hover:bg-[#f5f5f5] rounded-full px-4 h-9 text-[13px] font-medium"
+              className="bg-background border-border text-foreground hover:bg-muted rounded-full px-4 h-9 text-sm font-medium"
               onClick={() => setSearchQuery("")}
             >
               Clear search
@@ -242,10 +269,6 @@ export default function Dashboard() {
                 onDelete={(id) => {
                   setLinkToDelete(id);
                   setIsDeleteModalOpen(true);
-                }}
-                onQr={(data) => {
-                  setSelectedQr(data);
-                  setIsQrModalOpen(true);
                 }}
               />
             ))}
@@ -274,11 +297,6 @@ export default function Dashboard() {
         onClose={() => setIsDeleteModalOpen(false)}
         onSubmit={handleDelete}
         isLoading={submitLoading}
-      />
-      <QrModal
-        isOpen={isQrModalOpen}
-        onClose={() => setIsQrModalOpen(false)}
-        selectedQr={selectedQr}
       />
     </div>
   );

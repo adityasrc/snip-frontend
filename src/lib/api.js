@@ -1,19 +1,26 @@
-import axios from 'axios';
-import { HTTP_BACKEND } from '../../config.js';
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: HTTP_BACKEND,
+  baseURL: import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || "http://localhost:10000",
 });
 
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response,
   (error) => {
+    if (error.response?.status === 401 && typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      if (window.location.pathname !== "/signin") {
+        window.location.href = "/signin";
+      }
+    }
     return Promise.reject(error);
   }
 );
