@@ -8,6 +8,7 @@ const Signin = lazy(() => import("./pages/Signin"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const RedirectHandler = lazy(() => import("./pages/RedirectHandler"));
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
@@ -47,6 +48,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/404" element={<NotFound />} />
+          <Route path="/:shortId" element={<RedirectHandler />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

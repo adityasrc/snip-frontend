@@ -39,16 +39,16 @@ src/
 │   ├── Analytics.jsx    # Per-link analytics view
 │   ├── Signin.jsx       # Auth flows
 │   ├── Signup.jsx
-│   ├── Docs.jsx         # API documentation
+│   ├── RedirectHandler.jsx # Dynamic short link redirect resolver
 │   └── NotFound.jsx
 └── App.jsx              # Routes (Code-split with React.lazy)
 ```
 
 ## Key Architecture Decisions
 
-### API-First, Backend-Agnostic Redirects
+### Safe Link Redirection Handler
 
-Instead of using a slow React client-side redirect (`window.location.href`), the frontend deliberately hands off all `/:shortId` routing directly to the backend. This ensures lightning-fast `302 Found` redirects via Redis cache, keeping the React bundle strictly focused on dashboard management and preparing the architecture for a seamless Golang backend migration.
+Short URLs hitting the frontend domain (e.g. `trysnip.vercel.app/:shortId`) are instantly captured by `RedirectHandler.jsx`. The handler extracts the referrer safely without throwing URL exceptions, renders a smooth themed loader to eliminate screen flash, and hands off execution to the backend redirection service to record analytics and issue a native 302 Found redirect.
 
 ### Semantic Design Tokens
 
@@ -93,8 +93,8 @@ App runs on `http://localhost:5173`.
 | `/signin` | Login |
 | `/dashboard` | Link management (create, edit, delete, copy, QR) |
 | `/analytics/:id` | Per-link analytics with traffic chart, devices, browsers, locations |
-| `/docs` | API documentation |
-| `*` | 404 page |
+| `/:shortId` | Short link redirection handler |
+| `/404`, `*` | 404 page |
 
 ## Deployment
 
