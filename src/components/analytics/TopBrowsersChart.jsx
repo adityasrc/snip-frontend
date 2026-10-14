@@ -10,9 +10,8 @@ export function TopBrowsersChart({ browserData = [] }) {
   return (
     <RankedListCard
       title="Top Browsers"
-      icon={<Globe className="w-4 h-4 text-muted-foreground" />}
+      icon={<Globe className="h-4 w-4 text-muted-foreground" />}
       data={formattedData}
-      barColor="bg-blue-600"
     />
   );
 }

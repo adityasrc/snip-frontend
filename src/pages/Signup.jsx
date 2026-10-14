@@ -46,6 +46,8 @@ export default function Signup() {
       });
 
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user_name", name.trim());
+      localStorage.setItem("user_email", email.trim());
       toast.success("Account created.");
       navigate("/dashboard", { state: location.state });
     } catch (err) {

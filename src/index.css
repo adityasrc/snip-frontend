@@ -1,6 +1,18 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@keyframes fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop-in { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+@keyframes grow-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+@theme {
+  --animate-fade-up: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-fade-in: fade-in 0.4s ease-out both;
+  --animate-pop-in: pop-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-grow: grow-x 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -17,7 +29,7 @@
     --muted-foreground: 0 0% 45%;
     --accent: 0 0% 96%;
     --accent-foreground: 0 0% 9%;
-    --brand: 212 100% 45%;
+    --brand: 238 82% 59%;
     --brand-foreground: 0 0% 100%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
@@ -25,6 +37,11 @@
     --input: 0 0% 90%;
     --ring: 0 0% 9%;
     --radius: 0.5rem;
+    --chart-1: 238 82% 59%;
+    --chart-2: 173 80% 40%;
+    --chart-3: 43 96% 56%;
+    --chart-4: 330 81% 60%;
+    --chart-5: 262 83% 58%;
   }
 }
 
@@ -50,6 +67,11 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
 
   --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "DM Mono", ui-monospace, monospace;
@@ -62,6 +84,7 @@
 
   html {
     scroll-behavior: smooth;
+    scrollbar-gutter: stable;
   }
 
   body {
@@ -84,4 +107,8 @@
     -webkit-box-shadow: 0 0 0 1000px hsl(var(--background)) inset;
     -webkit-text-fill-color: hsl(var(--foreground));
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }

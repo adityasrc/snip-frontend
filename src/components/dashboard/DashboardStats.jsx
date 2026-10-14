@@ -12,7 +12,10 @@ export function DashboardStats({ links }) {
 
   return (
     <div className="mb-6 grid gap-4 sm:grid-cols-3">
-      <div className="flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-xs">
+      <div
+        className="flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-xs animate-fade-up"
+        style={{ animationDelay: "0ms" }}
+      >
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border bg-muted text-foreground">
           <Link2 className="h-5 w-5" />
         </div>
@@ -26,8 +29,11 @@ export function DashboardStats({ links }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-xs">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-brand/20 bg-brand/10 text-brand">
+      <div
+        className="flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-xs animate-fade-up"
+        style={{ animationDelay: "60ms" }}
+      >
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-indigo-200/60 bg-indigo-50/70 text-indigo-600">
           <BarChart3 className="h-5 w-5" />
         </div>
         <div>
@@ -40,8 +46,11 @@ export function DashboardStats({ links }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-xs">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-600/20 bg-emerald-50 text-emerald-600">
+      <div
+        className="flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-xs animate-fade-up"
+        style={{ animationDelay: "120ms" }}
+      >
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-200/60 bg-emerald-50/70 text-emerald-600">
           <Activity className="h-5 w-5" />
         </div>
         <div>

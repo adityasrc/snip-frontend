@@ -1,22 +1,40 @@
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Activity } from "lucide-react";
+
+function CustomTooltip({ active, payload, label }) {
+  if (active && payload && payload.length) {
+    const value = payload[0].value ?? 0;
+    return (
+      <div className="rounded-lg border bg-card px-3 py-2 text-xs shadow-md">
+        <p className="font-medium text-foreground">{label}</p>
+        <p className="text-muted-foreground mt-0.5">
+          <span className="font-semibold text-foreground tabular-nums">{value}</span>{" "}
+          {value === 1 ? "click" : "clicks"}
+        </p>
+      </div>
+    );
+  }
+  return null;
+}
 
 export function TrafficChart({ timelineData = [] }) {
   const totalClicks = timelineData.reduce((sum, d) => sum + (d.clicks || 0), 0);
 
   return (
     <Card className="bg-card border-border rounded-xl shadow-none">
-      <CardHeader className="border-b border-border pb-4 px-5 pt-5 flex flex-row items-center justify-between">
-        <div>
+      <CardHeader className="border-b px-5 py-4">
+        <div className="flex items-center gap-2">
+          <Activity className="h-4 w-4 text-muted-foreground" />
           <CardTitle className="text-sm font-semibold text-foreground">
             Traffic (Last 7 Days)
           </CardTitle>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {totalClicks} {totalClicks === 1 ? "click" : "clicks"} recorded this week
-          </p>
         </div>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          {totalClicks} {totalClicks === 1 ? "click" : "clicks"} recorded this week
+        </p>
       </CardHeader>
-      <CardContent className="p-4 h-[210px]">
+      <CardContent className="p-5 h-[220px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={timelineData}
@@ -24,8 +42,8 @@ export function TrafficChart({ timelineData = [] }) {
           >
             <defs>
               <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#2563eb" stopOpacity={0.22} />
-                <stop offset="95%" stopColor="#2563eb" stopOpacity={0.01} />
+                <stop offset="0%" stopColor="hsl(var(--chart-1))" stopOpacity={0.18} />
+                <stop offset="100%" stopColor="hsl(var(--chart-1))" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
@@ -33,7 +51,7 @@ export function TrafficChart({ timelineData = [] }) {
               dataKey="date"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
               dy={10}
             />
             <YAxis
@@ -41,30 +59,18 @@ export function TrafficChart({ timelineData = [] }) {
               domain={[0, (dataMax) => Math.max(dataMax, 2)]}
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
             />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "hsl(var(--card))",
-                borderRadius: "8px",
-                border: "1px solid hsl(var(--border))",
-                boxShadow: "0 8px 16px -4px rgba(0, 0, 0, 0.08)",
-                fontSize: "12px",
-                color: "hsl(var(--card-foreground))",
-              }}
-              labelStyle={{ fontWeight: 600, color: "hsl(var(--foreground))", marginBottom: 2 }}
-              itemStyle={{ color: "#2563eb", fontWeight: 600 }}
-              formatter={(value) => [`${value} ${value === 1 ? "click" : "clicks"}`, "Traffic"]}
-            />
+            <Tooltip content={<CustomTooltip />} />
             <Area
               type="monotone"
               dataKey="clicks"
-              stroke="#2563eb"
+              stroke="hsl(var(--chart-1))"
               strokeWidth={2}
               fillOpacity={1}
               fill="url(#colorClicks)"
-              dot={{ r: 3, fill: "#2563eb", strokeWidth: 0 }}
-              activeDot={{ r: 5, fill: "#2563eb", stroke: "hsl(var(--card))", strokeWidth: 2 }}
+              dot={{ r: 3.5, fill: "hsl(var(--chart-1))", stroke: "hsl(var(--card))", strokeWidth: 1.5 }}
+              activeDot={{ r: 5.5, fill: "hsl(var(--chart-1))", stroke: "hsl(var(--card))", strokeWidth: 2 }}
             />
           </AreaChart>
         </ResponsiveContainer>

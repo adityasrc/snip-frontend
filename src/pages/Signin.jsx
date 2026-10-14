@@ -34,6 +34,14 @@ export default function Signin() {
       });
 
       localStorage.setItem("token", response.data.token);
+      if (response.data.user?.name) {
+        localStorage.setItem("user_name", response.data.user.name);
+      }
+      if (response.data.user?.email) {
+        localStorage.setItem("user_email", response.data.user.email);
+      } else {
+        localStorage.setItem("user_email", email.trim());
+      }
       navigate("/dashboard", { state: location.state });
       toast.success("Signed in successfully!");
     } catch (err) {

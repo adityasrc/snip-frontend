@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link as RouterLink, NavLink, useNavigate } from "react-router-dom";
 import { LogOut, Link2 } from "lucide-react";
 import {
@@ -10,14 +11,37 @@ import {
 } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Logo } from "../Logo";
+import api from "@/lib/api";
 import { getUserFromToken } from "@/lib/utils";
 
 export function DashboardHeader() {
   const navigate = useNavigate();
-  const user = getUserFromToken();
+  const [user, setUser] = useState(() => getUserFromToken());
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    api.get("/api/auth/me")
+      .then((res) => {
+        if (res.data?.user?.name) {
+          localStorage.setItem("user_name", res.data.user.name);
+          if (res.data.user.email) {
+            localStorage.setItem("user_email", res.data.user.email);
+          }
+          setUser({
+            name: res.data.user.name,
+            email: res.data.user.email || "",
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user_name");
+    localStorage.removeItem("user_email");
     navigate("/signin");
   };
 

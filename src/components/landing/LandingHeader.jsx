@@ -29,10 +29,10 @@ export function LandingHeader() {
           <Logo />
         </Link>
 
-        <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-0.5 bg-background border border-border rounded-full px-2 py-1.5 shadow-xs">
+        <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-1 bg-muted/60 backdrop-blur-md border border-border/80 rounded-full p-1 shadow-xs">
           <a
             href="#features"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground px-4 py-1.5 transition-colors"
+            className="text-[13px] font-medium text-muted-foreground hover:text-foreground hover:bg-card hover:shadow-2xs px-3.5 py-1.5 rounded-full transition-all duration-150"
           >
             Features
           </a>
@@ -41,7 +41,7 @@ export function LandingHeader() {
             href="https://github.com/adityasrc/snip-frontend"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground px-4 py-1.5 transition-colors"
+            className="text-[13px] font-medium text-muted-foreground hover:text-foreground hover:bg-card hover:shadow-2xs px-3.5 py-1.5 rounded-full transition-all duration-150"
           >
             GitHub
           </a>
@@ -49,9 +49,10 @@ export function LandingHeader() {
 
         <div className="hidden md:flex items-center gap-2">
           {isLoggedIn ? (
-            <Button asChild size="sm">
+            <Button asChild size="sm" className="group">
               <Link to="/dashboard">
-                Dashboard <ArrowRight />
+                Dashboard{" "}
+                <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
               </Link>
             </Button>
           ) : (
