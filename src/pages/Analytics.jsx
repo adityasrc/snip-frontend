@@ -250,7 +250,7 @@ export function Analytics() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
             <div className="bg-muted/30 rounded-2xl p-4 border border-border">
-              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1">Total Clicks</p>
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1">Total Clicks</p>
               <p className="text-2xl font-semibold text-foreground tracking-tight">{totalClicks}</p>
               {lastClickText && (
                 <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
@@ -259,14 +259,14 @@ export function Analytics() {
               )}
             </div>
             <div className="bg-muted/30 rounded-2xl p-4 border border-border">
-              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1">Top Location</p>
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1">Top Location</p>
               <p className="text-2xl font-semibold text-foreground tracking-tight truncate">{topCountry}</p>
               <p className="text-xs text-muted-foreground mt-1">
                 {totalClicks === 0 ? "no traffic yet" : "primary traffic source"}
               </p>
             </div>
             <div className="bg-muted/30 rounded-2xl p-4 border border-border">
-              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.05em] mb-1">Created</p>
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1">Created</p>
               <p className="text-xl font-semibold text-foreground tracking-tight mt-1">{createdDate}</p>
             </div>
           </div>

@@ -7,10 +7,30 @@ import { DashboardStats } from "../components/dashboard/DashboardStats";
 import { LinkCard } from "../components/dashboard/LinkCard";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
+import { Skeleton } from "../components/ui/skeleton";
 import { Plus, Link as LinkIcon, Search } from "lucide-react";
 import { CreateLinkModal } from "../components/modals/CreateLinkModal";
 import { EditLinkModal } from "../components/modals/EditLinkModal";
 import { DeleteLinkModal } from "../components/modals/DeleteLinkModal";
+
+function LinkSkeleton() {
+  return (
+    <div className="rounded-2xl border bg-card p-5 shadow-xs">
+      <div className="flex items-start gap-4">
+        <Skeleton className="h-10 w-10 rounded-xl shrink-0" />
+        <div className="flex flex-col gap-2 min-w-0">
+          <Skeleton className="h-4 w-40" />
+          <Skeleton className="h-4 w-56" />
+          <Skeleton className="h-3 w-72 max-w-full" />
+        </div>
+      </div>
+      <div className="mt-4 flex justify-between border-t pt-3">
+        <Skeleton className="h-3 w-28" />
+        <Skeleton className="h-8 w-40 rounded-full" />
+      </div>
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -30,38 +50,33 @@ export default function Dashboard() {
   const [linkToDelete, setLinkToDelete] = useState(null);
   const [submitLoading, setSubmitLoading] = useState(false);
 
+  useEffect(() => {
+    document.title = "Snip | Links";
+  }, []);
+
   const fetchLinks = useCallback(async () => {
     try {
       const res = await api.get(`/api/links`);
       setLinks(res.data.links || []);
     } catch (e) {
-      if (e.response?.status === 401) {
-        localStorage.removeItem("token");
-        navigate("/signin");
-        toast.error("Session expired. Please sign in again.");
-      } else {
+      if (e.response?.status !== 401) {
         toast.error("Failed to load links");
       }
     } finally {
       setLoading(false);
     }
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/signin");
-      return;
-    }
-
     fetchLinks();
 
     const prefillUrl = location.state?.prefillUrl;
     if (prefillUrl) {
       setFormData((prev) => ({ ...prev, originalUrl: prefillUrl }));
       setIsModalOpen(true);
+      navigate(location.pathname, { replace: true, state: null });
     }
-  }, [fetchLinks, location.state?.prefillUrl, navigate]);
+  }, [fetchLinks, location.pathname, location.state?.prefillUrl, navigate]);
 
   async function handleCreate() {
     const originalUrl = formData.originalUrl.trim();
@@ -144,11 +159,15 @@ export default function Dashboard() {
     }
   }
 
-  const copyToClipboard = (shortId) => {
-    navigator.clipboard.writeText(`${window.location.origin}/${shortId}`);
-    setCopiedLink(shortId);
-    toast.success("Link copied!");
-    setTimeout(() => setCopiedLink(null), 2000);
+  const copyToClipboard = async (shortId) => {
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/${shortId}`);
+      setCopiedLink(shortId);
+      toast.success("Link copied!");
+      setTimeout(() => setCopiedLink(null), 2000);
+    } catch {
+      toast.error("Couldn't copy the link");
+    }
   };
 
   const filteredLinks = links.filter(
@@ -159,7 +178,7 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-background font-sans pb-20">
+    <div className="min-h-screen bg-muted/50 pb-20">
       <DashboardHeader />
 
       <main className="max-w-6xl mx-auto px-6 pt-10">
@@ -181,64 +200,45 @@ export default function Dashboard() {
                 placeholder="Search links..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-3 bg-background border-border text-foreground focus-visible:ring-1 focus-visible:ring-ring rounded-full text-sm h-9 w-full shadow-sm"
+                className="rounded-full pl-9"
               />
             </div>
             <Button
-              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-sm transition-all font-medium text-sm h-9 px-4 w-full sm:w-auto inline-flex items-center gap-1.5"
+              className="w-full sm:w-auto"
               onClick={() => setIsModalOpen(true)}
             >
-              <Plus className="w-4 h-4" /> Create Link
+              <Plus /> Create link
             </Button>
           </div>
         </div>
 
-        {!loading && links.length > 0 && <DashboardStats links={links} />}
+        {loading ? (
+          <Skeleton className="mb-6 h-24 rounded-2xl" />
+        ) : (
+          links.length > 0 && <DashboardStats links={links} />
+        )}
 
         {loading ? (
           <div className="grid gap-3">
             {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="bg-background rounded-2xl p-5 border border-border h-[140px] flex flex-col justify-between animate-pulse"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-6 h-6 rounded-full bg-muted" />
-                    <div className="h-4 w-36 rounded bg-muted" />
-                  </div>
-                  <div className="h-3 w-20 rounded bg-muted" />
-                </div>
-                <div className="h-3 w-64 rounded bg-muted" />
-                <div className="flex items-center justify-between pt-1">
-                  <div className="h-7 w-40 rounded-full bg-muted" />
-                  <div className="flex gap-2">
-                    <div className="h-8 w-14 rounded-full bg-muted" />
-                    <div className="h-8 w-8 rounded-full bg-muted" />
-                    <div className="h-8 w-8 rounded-full bg-muted" />
-                  </div>
-                </div>
-              </div>
+              <LinkSkeleton key={i} />
             ))}
           </div>
         ) : links.length === 0 ? (
-          <div className="text-center py-20 px-6 bg-background rounded-2xl border border-dashed border-border shadow-sm mt-4">
+          <div className="text-center py-16 px-6 bg-card rounded-2xl border border-dashed border-border">
             <div className="bg-muted w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-border">
               <LinkIcon className="w-5 h-5 text-foreground" />
             </div>
-            <h2 className="text-[17px] font-semibold text-foreground mb-1.5">No links created yet</h2>
+            <h2 className="text-[17px] font-semibold text-foreground mb-1.5">No links yet</h2>
             <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto leading-relaxed">
-              Shorten your first URL to begin tracking real-time click analytics.
+              Paste a long URL, get a short one, and see who clicks it.
             </p>
-            <Button
-              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-5 h-9 font-medium text-sm shadow-sm inline-flex items-center gap-1.5"
-              onClick={() => setIsModalOpen(true)}
-            >
-              <Plus className="w-4 h-4" /> Create your first link
+            <Button onClick={() => setIsModalOpen(true)}>
+              <Plus /> Create your first link
             </Button>
           </div>
         ) : filteredLinks.length === 0 ? (
-          <div className="text-center py-20 px-6 bg-background rounded-2xl border border-dashed border-border shadow-sm mt-4">
+          <div className="text-center py-16 px-6 bg-card rounded-2xl border border-dashed border-border">
             <div className="bg-muted w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-border">
               <Search className="w-5 h-5 text-muted-foreground" />
             </div>
@@ -248,7 +248,6 @@ export default function Dashboard() {
             </p>
             <Button
               variant="outline"
-              className="bg-background border-border text-foreground hover:bg-muted rounded-full px-4 h-9 text-sm font-medium"
               onClick={() => setSearchQuery("")}
             >
               Clear search

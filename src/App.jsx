@@ -1,6 +1,7 @@
 import { Suspense, lazy } from "react";
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import { Loader2 } from "lucide-react";
 
 const Landing = lazy(() => import("./pages/Landing"));
 const Signup = lazy(() => import("./pages/Signup"));
@@ -12,15 +13,13 @@ const RedirectHandler = lazy(() => import("./pages/RedirectHandler"));
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
-  if (!token) {
-    return <Navigate replace to="/signin" />;
-  }
-  return children ? children : <Outlet />;
+  if (!token) return <Navigate replace to="/signin" />;
+  return children;
 };
 
 const PageLoader = () => (
-  <div className="flex h-screen w-screen items-center justify-center bg-background">
-    <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-zinc-900"></div>
+  <div className="flex min-h-screen items-center justify-center bg-background">
+    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
   </div>
 );
 
@@ -57,11 +56,14 @@ function App() {
       <Toaster
         position="bottom-right"
         toastOptions={{
+          duration: 3000,
           style: {
             background: "hsl(var(--background))",
             color: "hsl(var(--foreground))",
             border: "1px solid hsl(var(--border))",
             borderRadius: "var(--radius)",
+            boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
+            fontSize: "14px",
           },
         }}
       />
