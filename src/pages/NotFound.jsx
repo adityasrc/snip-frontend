@@ -1,13 +1,15 @@
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Link2Off } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { isLoggedIn } from "../lib/utils";
 
 export default function NotFound() {
+  const expired = useSearchParams()[0].get("reason") === "expired";
+
   useEffect(() => {
-    document.title = "Snip | Page not found";
-  }, []);
+    document.title = expired ? "Snip | Link expired" : "Snip | Page not found";
+  }, [expired]);
 
   const loggedIn = isLoggedIn();
 
@@ -18,13 +20,15 @@ export default function NotFound() {
           <Link2Off className="h-6 w-6" />
         </div>
         <p className="mb-4 inline-block rounded-full border bg-card px-3 py-1 font-mono text-xs font-medium text-muted-foreground">
-          404
+          {expired ? "Expired" : "404"}
         </p>
         <h1 className="text-3xl font-semibold tracking-tight">
-          Page not found
+          {expired ? "This link has expired" : "Page not found"}
         </h1>
         <p className="mt-2 mb-8 text-sm text-muted-foreground">
-          The link you're looking for doesn't exist, has expired, or may have been deleted.
+          {expired
+            ? "The owner set an expiry date for this link and it has passed."
+            : "The link you're looking for doesn't exist or may have been deleted."}
         </p>
         <Button asChild>
           <Link to={loggedIn ? "/dashboard" : "/"}>

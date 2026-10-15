@@ -22,7 +22,7 @@ function CreateLinkForm({ initialUrl = "", onSubmit, onClose, isLoading }) {
   });
 
   const update = (field) => (e) =>
-    setValues({ ...values, [field]: e.target.value });
+    setValues((prev) => ({ ...prev, [field]: e.target.value }));
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -71,7 +71,7 @@ function CreateLinkForm({ initialUrl = "", onSubmit, onClose, isLoading }) {
           {values.expiresAt && (
             <button
               type="button"
-              onClick={() => setValues({ ...values, expiresAt: "" })}
+              onClick={() => setValues((prev) => ({ ...prev, expiresAt: "" }))}
               className="text-xs font-medium text-muted-foreground hover:text-foreground focus-visible:outline-hidden focus-visible:underline"
             >
               Clear

@@ -131,6 +131,7 @@ export function LinkCard({ link, onEdit, onDelete, onQrCode, index = 0 }) {
             <span className="text-muted-foreground">
               {link.clicks === 1 ? "click" : "clicks"}
             </span>
+            <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground" />
           </Button>
 
           <Button

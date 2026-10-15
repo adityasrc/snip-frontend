@@ -19,7 +19,7 @@ function EditLinkForm({ link, onSubmit, onClose, isLoading }) {
   });
 
   const update = (field) => (e) =>
-    setValues({ ...values, [field]: e.target.value });
+    setValues((prev) => ({ ...prev, [field]: e.target.value }));
 
   const handleSubmit = (e) => {
     e.preventDefault();

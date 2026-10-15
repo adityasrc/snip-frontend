@@ -29,7 +29,7 @@ export const formatBrowser = (name) => (!name || name === "Unknown" ? "Other" : 
 export function formatCountry(code) {
   if (!code || code === "Unknown" || code === "—") return "Unknown";
   if (code.length === 2) {
-    // native browser API for zero-bundle-size country code resolution
+    // convert two-letter country code to country name
     try {
       const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
       return regionNames.of(code.toUpperCase()) || code;
@@ -54,7 +54,7 @@ export function getUserFromToken() {
         if (payload.name) name = payload.name;
         if (payload.email) email = payload.email;
       } catch {
-        // token decode fallback
+        // fallback if token payload decode fails
       }
     }
 
@@ -68,6 +68,20 @@ export function isLoggedIn() {
   return !!localStorage.getItem("token");
 }
 
+export function clearAuth() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user_name");
+  localStorage.removeItem("user_email");
+}
+
 export function getErrorMessage(err, fallback) {
-  return err.response?.data?.message || err.response?.data?.error || fallback;
+  const data = err.response?.data;
+  if (!data) return fallback;
+  if (data.error && typeof data.error === "object") {
+    const firstKey = Object.keys(data.error)[0];
+    if (firstKey && Array.isArray(data.error[firstKey]) && data.error[firstKey][0]) {
+      return data.error[firstKey][0];
+    }
+  }
+  return data.message || (typeof data.error === "string" ? data.error : fallback);
 }

@@ -11,7 +11,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://snip-9552.onrender.com",
+        target: "http://localhost:10000",
         changeOrigin: true,
         secure: false,
       },

@@ -12,7 +12,7 @@ import {
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Logo } from "../Logo";
 import api from "@/lib/api";
-import { cn, getUserFromToken } from "@/lib/utils";
+import { cn, getUserFromToken, clearAuth } from "@/lib/utils";
 
 export function DashboardHeader() {
   const navigate = useNavigate();
@@ -39,9 +39,7 @@ export function DashboardHeader() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user_name");
-    localStorage.removeItem("user_email");
+    clearAuth();
     navigate("/signin");
   };
 

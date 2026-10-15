@@ -1,109 +1,86 @@
-# Snip Frontend
+# Snip (frontend)
 
-React frontend for the Snip URL shortener. Clean, component-driven architecture with a professional analytics dashboard, designed with a premium, minimalist SaaS aesthetic.
+React frontend for Snip, a URL shortener with click analytics.
 
-**Live:** [https://trysnip.vercel.app](https://trysnip.vercel.app)  
-**Backend repo:** [https://github.com/adityasrc/snip-backend](https://github.com/adityasrc/snip-backend)
+**Live:** https://trysnip.vercel.app
+**Backend:** https://github.com/adityasrc/snip-backend
 
-## Tech Stack
+## Features
 
-| Layer | Technology |
-| --- | --- |
-| Framework | React 19 (Vite) |
-| Styling | Tailwind CSS v3 (Semantic Design Tokens) |
-| UI Primitives | Radix UI (Shadcn patterns) |
-| Charts | Recharts |
-| HTTP Client | Axios (with interceptor) |
-| Routing | React Router v7 |
-| Icons | Lucide React |
-| Toasts | react-hot-toast |
-| Font | Inter (UI) & DM Mono (Data/URLs) |
+- Create short links with an optional custom alias and expiry date
+- Search, edit, delete and copy links; QR code for each link
+- Per-link analytics: clicks over the last 7 days, devices, browsers, countries and referrers
+- Paste a URL on the landing page and it carries through sign-up into the create dialog
 
-## Project Structure
+## Tech stack
+
+React 19 (Vite), Tailwind CSS v4, Radix UI primitives (shadcn-style components), React Router, Axios, Recharts, react-hot-toast and date-fns. Fonts: Inter and DM Mono. Package manager: Bun.
+
+## Project structure
 
 ```text
 src/
 ├── components/
-│   ├── analytics/       # Chart components (TrafficChart, DevicePieChart, etc.)
-│   ├── dashboard/       # DashboardHeader, DashboardStats, LinkCard, Modals
-│   └── ui/              # shadcn-style primitives (Button, Input, Card, etc.)
+│   ├── analytics/       # Chart components (TrafficChart, DevicePieChart, RankedListCard, ChartCard)
+│   ├── auth/            # AuthLayout, FormError, PasswordInput
+│   ├── dashboard/       # DashboardHeader, DashboardStats, LinkCard
+│   ├── landing/         # LandingCta, LandingFeatures, LandingFooter, LandingHeader, LandingHero
+│   ├── modals/          # CreateLinkModal, DeleteLinkModal, EditLinkModal, QrCodeModal
+│   ├── ui/              # Radix UI primitives (Button, Input, Card, Dialog, etc.)
+│   └── Logo.jsx
 ├── lib/
 │   ├── api.js           # Axios instance with JWT & 401 interceptor
-│   └── utils.js         # Native Intl API helpers & tailwind-merge
+│   ├── constants.js     # Shared constants
+│   ├── useCopy.js       # Clipboard copy hook
+│   └── utils.js         # Formatting helpers & tailwind-merge
 ├── pages/
-│   ├── Landing.jsx      # Landing page shell
-│   ├── LandingHero.jsx  # Hero + sections
-│   ├── LandingHeader.jsx
-│   ├── LandingFooter.jsx
-│   ├── Dashboard.jsx    # Main app page
 │   ├── Analytics.jsx    # Per-link analytics view
-│   ├── Signin.jsx       # Auth flows
-│   ├── Signup.jsx
+│   ├── Dashboard.jsx    # Link management dashboard
+│   ├── Landing.jsx      # Marketing landing page
+│   ├── NotFound.jsx     # Not found / expired link page
 │   ├── RedirectHandler.jsx # Dynamic short link redirect resolver
-│   └── NotFound.jsx
-└── App.jsx              # Routes (Code-split with React.lazy)
+│   ├── Signin.jsx       # Sign in page
+│   └── Signup.jsx       # Sign up page
+├── App.jsx              # Routes (Code-split with React.lazy)
+├── index.css            # Tailwind design tokens, animations, fonts
+└── main.jsx             # React entry point
 ```
 
-## Key Architecture Decisions
+## How it works
 
-### Safe Link Redirection Handler
+**Short links.** A short URL such as trysnip.vercel.app/abc opens the app's RedirectHandler, which sends the browser to the backend (`/abc?ref=<referrer host>`). The backend records the click and answers with a 302 to the destination. The referrer is read in the browser first because the backend would otherwise only see its own frontend as the referrer. For a missing or expired link the backend redirects back to /404 on the frontend.
 
-Short URLs hitting the frontend domain (e.g. `trysnip.vercel.app/:shortId`) are instantly captured by `RedirectHandler.jsx`. The handler extracts the referrer safely without throwing URL exceptions, renders a smooth themed loader to eliminate screen flash, and hands off execution to the backend redirection service to record analytics and issue a native 302 Found redirect.
+**API client.** One Axios instance (`src/lib/api.js`) attaches the JWT to every request and, on a 401, clears the token and sends the user to /signin.
 
-### Semantic Design Tokens
+**Signed-in user.** The JWT carries `id`, `name` and `email`. The header decodes it only to show the name; the server verifies the token on every request.
 
-Hardcoded Tailwind colors were stripped out in favor of centralized CSS variables (e.g., `bg-background`, `text-foreground`, `border-border`). This ensures a unified, premium aesthetic and guarantees zero-friction scalability when adding Dark Mode.
+**Design tokens.** Colors, radius and fonts are CSS variables mapped in `src/index.css`, so components use names like `bg-card` and `text-muted-foreground` instead of raw colors. The only accents are brand (blue), success (green) and destructive (red).
 
-### Zero-Dependency Localization
+**Animations.** CSS only (keyframes in `src/index.css`); they are switched off for `prefers-reduced-motion`.
 
-Instead of bloating the bundle with heavy country-code mapping libraries (like `i18n-iso-countries`), the analytics dashboard utilizes the browser's native `Intl.DisplayNames` API to format country data, maintaining a near-zero impact on bundle size.
-
-### Smart Intent Forwarding
-
-The landing page captures long URLs before authentication. React Router state passes this URL through the `/signup` and `/signin` flows, automatically filling the dashboard creation modal once the user logs in.
-
-### Centralized API Interceptors
-
-All requests go through a single Axios instance in `lib/api.js`. A request interceptor automatically attaches the JWT to every header, while a response interceptor catches `401 Unauthorized` errors globally to force a clean logout, keeping UI components entirely decoupled from auth state logic.
-
-## Running Locally
+## Run locally
 
 ```bash
 git clone https://github.com/adityasrc/snip-frontend.git
 cd snip-frontend
-
-# Install dependencies
 bun install
-
-# Set environment variable
-echo "VITE_API_URL=http://localhost:10000" > .env
-
-# Start dev server
-bun run dev
+cp .env.example .env   # VITE_BACKEND_URL=http://localhost:10000
+bun run dev            # http://localhost:5173
 ```
 
-App runs on `http://localhost:5173`.
+The backend must be running on port 10000 (see the backend README).
 
-## Pages
+## Routes
 
-| Route | Description |
+| Route | Page |
 | --- | --- |
-| `/` | Landing page with hero, how-it-works, feature cards |
-| `/signup` | User registration |
-| `/signin` | Login |
-| `/dashboard` | Link management (create, edit, delete, copy, QR) |
-| `/analytics/:id` | Per-link analytics with traffic chart, devices, browsers, locations |
-| `/:shortId` | Short link redirection handler |
-| `/404`, `*` | 404 page |
+| `/` | Landing page |
+| `/signup`, `/signin` | Authentication |
+| `/dashboard` | Link management |
+| `/analytics/:id` | Analytics for one link |
+| `/:shortId` | Short link redirect |
+| `/404` | Not found / expired link |
 
-## Deployment
+## Deploy
 
-Deployed on Vercel. The `vercel.json` rewrites all standard routes to `index.html` for client-side routing.
-
-```json
-{
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}
-```
+Vercel. `vercel.json` rewrites every path to `index.html` so client-side routing works. Set `VITE_BACKEND_URL` to the backend URL in the Vercel project settings.

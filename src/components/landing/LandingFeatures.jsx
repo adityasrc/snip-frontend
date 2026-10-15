@@ -30,7 +30,7 @@ function FeatureCard({ icon, title, description, children }) {
 
 export function LandingFeatures() {
   return (
-    <section id="features" className="mx-auto max-w-6xl scroll-mt-24 px-6 py-12 lg:py-16">
+    <section id="features" className="mx-auto max-w-6xl scroll-mt-5 px-6 py-12 lg:py-16">
       <div className="mb-12 max-w-xl">
         <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
           Features
