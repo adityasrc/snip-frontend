@@ -1,32 +1,35 @@
+import { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { ArrowLeft, Link2Off } from "lucide-react";
 import { Button } from "../components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Link as LinkIcon } from "lucide-react";
+import { isLoggedIn } from "../lib/utils";
 
 export default function NotFound() {
-  const navigate = useNavigate();
+  useEffect(() => {
+    document.title = "Snip | Page not found";
+  }, []);
+
+  const loggedIn = isLoggedIn();
+
   return (
-    <div className="min-h-screen bg-background flex flex-col justify-center items-center px-6 relative overflow-hidden">
-      <div className="text-center max-w-md">
-        <div className="w-12 h-12 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-6 shadow-sm">
-          <LinkIcon className="w-6 h-6" strokeWidth={2.5} />
+    <div className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
+      <div className="max-w-md animate-fade-up">
+        <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+          <Link2Off className="h-6 w-6" />
         </div>
-
-        <span className="text-xs font-mono font-medium text-muted-foreground bg-card border border-border rounded-full px-3 py-1 inline-block mb-4">
-          404 Not Found
-        </span>
-
-        <h1 className="text-3xl font-semibold text-foreground tracking-tight mb-2">
+        <p className="mb-4 inline-block rounded-full border bg-card px-3 py-1 font-mono text-xs font-medium text-muted-foreground">
+          404
+        </p>
+        <h1 className="text-3xl font-semibold tracking-tight">
           Page not found
         </h1>
-        <p className="text-sm text-muted-foreground mb-8 leading-relaxed">
+        <p className="mt-2 mb-8 text-sm text-muted-foreground">
           The link you're looking for doesn't exist, has expired, or may have been deleted.
         </p>
-
-        <Button
-          onClick={() => navigate("/")}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-6 h-10 font-medium text-sm shadow-sm transition-all inline-flex items-center gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to Home
+        <Button asChild>
+          <Link to={loggedIn ? "/dashboard" : "/"}>
+            <ArrowLeft /> {loggedIn ? "Back to dashboard" : "Back to home"}
+          </Link>
         </Button>
       </div>
     </div>

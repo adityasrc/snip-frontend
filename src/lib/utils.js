@@ -13,7 +13,7 @@ const REFERRER_NAMES = {
 };
 
 export function formatReferrer(ref) {
-  if (!ref || ref === "Direct") return "Direct";
+  if (!ref || ref === "Direct" || ref === "Unknown") return "Direct";
   if (REFERRER_NAMES[ref]) return REFERRER_NAMES[ref];
   try {
     const url = ref.includes("://") ? ref : `https://${ref}`;
@@ -23,6 +23,8 @@ export function formatReferrer(ref) {
     return REFERRER_NAMES[ref] || ref;
   }
 }
+
+export const formatBrowser = (name) => (!name || name === "Unknown" ? "Other" : name);
 
 export function formatCountry(code) {
   if (!code || code === "Unknown" || code === "—") return "Unknown";
@@ -60,4 +62,12 @@ export function getUserFromToken() {
   } catch {
     return { name: "User", email: "" };
   }
+}
+
+export function isLoggedIn() {
+  return !!localStorage.getItem("token");
+}
+
+export function getErrorMessage(err, fallback) {
+  return err.response?.data?.message || err.response?.data?.error || fallback;
 }

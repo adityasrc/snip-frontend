@@ -1,6 +1,6 @@
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Activity } from "lucide-react";
+import { ChartCard } from "./ChartCard";
 
 function CustomTooltip({ active, payload, label }) {
   if (active && payload && payload.length) {
@@ -22,19 +22,12 @@ export function TrafficChart({ timelineData = [] }) {
   const totalClicks = timelineData.reduce((sum, d) => sum + (d.clicks || 0), 0);
 
   return (
-    <Card className="bg-card border-border rounded-xl shadow-none">
-      <CardHeader className="border-b px-5 py-4">
-        <div className="flex items-center gap-2">
-          <Activity className="h-4 w-4 text-muted-foreground" />
-          <CardTitle className="text-sm font-semibold text-foreground">
-            Traffic (Last 7 Days)
-          </CardTitle>
-        </div>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          {totalClicks} {totalClicks === 1 ? "click" : "clicks"} recorded this week
-        </p>
-      </CardHeader>
-      <CardContent className="p-5 h-[220px]">
+    <ChartCard
+      icon={Activity}
+      title="Traffic (last 7 days)"
+      subtitle={`${totalClicks} ${totalClicks === 1 ? "click" : "clicks"} this week`}
+    >
+      <div className="h-[220px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={timelineData}
@@ -74,7 +67,7 @@ export function TrafficChart({ timelineData = [] }) {
             />
           </AreaChart>
         </ResponsiveContainer>
-      </CardContent>
-    </Card>
+      </div>
+    </ChartCard>
   );
 }

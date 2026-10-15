@@ -10,58 +10,36 @@ export function DashboardStats({ links }) {
     return new Date(link.expiresAt) > new Date();
   }).length;
 
+  const stats = [
+    { label: "Total links", value: totalLinks, icon: Link2, tone: "bg-muted text-foreground" },
+    { label: "Total clicks", value: formattedClicks, icon: BarChart3, tone: "border-brand/20 bg-brand/10 text-brand" },
+    { label: "Active links", value: activeLinks, icon: Activity, tone: "border-success/20 bg-success/10 text-success" },
+  ];
+
   return (
     <div className="mb-6 grid gap-4 sm:grid-cols-3">
-      <div
-        className="flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-xs animate-fade-up"
-        style={{ animationDelay: "0ms" }}
-      >
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border bg-muted text-foreground">
-          <Link2 className="h-5 w-5" />
-        </div>
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Total Links
-          </p>
-          <p className="text-3xl font-semibold tracking-tight tabular-nums text-foreground">
-            {totalLinks}
-          </p>
-        </div>
-      </div>
-
-      <div
-        className="flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-xs animate-fade-up"
-        style={{ animationDelay: "60ms" }}
-      >
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-indigo-200/60 bg-indigo-50/70 text-indigo-600">
-          <BarChart3 className="h-5 w-5" />
-        </div>
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Total Clicks
-          </p>
-          <p className="text-3xl font-semibold tracking-tight tabular-nums text-foreground">
-            {formattedClicks}
-          </p>
-        </div>
-      </div>
-
-      <div
-        className="flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-xs animate-fade-up"
-        style={{ animationDelay: "120ms" }}
-      >
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-200/60 bg-emerald-50/70 text-emerald-600">
-          <Activity className="h-5 w-5" />
-        </div>
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Active Links
-          </p>
-          <p className="text-3xl font-semibold tracking-tight tabular-nums text-foreground">
-            {activeLinks}
-          </p>
-        </div>
-      </div>
+      {stats.map(({ label, value, icon, tone }, i) => {
+        const Icon = icon;
+        return (
+          <div
+            key={label}
+            className="animate-fade-up flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-xs"
+            style={{ animationDelay: `${i * 60}ms` }}
+          >
+            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${tone}`}>
+              <Icon className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                {label}
+              </p>
+              <p className="text-3xl font-semibold tracking-tight tabular-nums">
+                {value}
+              </p>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

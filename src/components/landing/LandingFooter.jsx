@@ -1,52 +1,60 @@
 import { Link } from "react-router-dom";
-import { ArrowUpRight, Github } from "lucide-react";
+import { Github } from "lucide-react";
 import { Logo } from "../Logo";
+import { REPO_URL, AUTHOR_URL, X_URL } from "@/lib/constants";
 
 const FOOTER_LINKS = {
   Product: [
     { label: "Features", href: "#features" },
-    { label: "Dashboard", href: "/dashboard" },
+    { label: "Dashboard", to: "/dashboard" },
   ],
   Developers: [
-    { label: "GitHub", href: "https://github.com/adityasrc/snip-frontend", external: true },
-    { label: "Open issues", href: "https://github.com/adityasrc/snip-frontend/issues", external: true },
+    { label: "GitHub", href: REPO_URL, external: true },
+    { label: "Open issues", href: `${REPO_URL}/issues`, external: true },
   ],
 };
 
+const externalProps = { target: "_blank", rel: "noopener noreferrer" };
+
 export function LandingFooter() {
   const year = new Date().getFullYear();
+  const linkClass =
+    "text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-hidden focus-visible:underline";
+  const socialClass =
+    "flex h-8 w-8 items-center justify-center rounded-lg border bg-card text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring";
 
   return (
-    <footer className="mt-auto w-full border-t border-border bg-background text-foreground">
-      <div className="mx-auto max-w-6xl px-6 pt-8 pb-3">
-        <div className="flex flex-col md:flex-row justify-between items-start gap-8">
-          <div className="flex flex-col gap-3 max-w-xs">
-            <Link to="/" className="group w-fit">
+    <footer className="mt-auto w-full border-t">
+      <div className="mx-auto max-w-6xl px-6 pt-12 pb-8">
+        <div className="flex flex-col items-start justify-between gap-8 md:flex-row">
+          <div className="flex max-w-xs flex-col gap-3">
+            <Link
+              to="/"
+              className="group w-fit rounded-lg focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
+            >
               <Logo />
             </Link>
-            <p className="text-xs leading-relaxed text-muted-foreground">
+            <p className="text-sm leading-relaxed text-muted-foreground">
               A simple way to create, manage, and track short links.
             </p>
             <div className="flex items-center gap-2 pt-0.5">
               <a
-                href="https://github.com/adityasrc/snip-frontend"
-                target="_blank"
-                rel="noopener noreferrer"
+                href={REPO_URL}
                 aria-label="GitHub"
-                className="flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                className={socialClass}
+                {...externalProps}
               >
-                <Github className="h-3.5 w-3.5" />
+                <Github className="h-4 w-4" />
               </a>
               <a
-                href="https://x.com/truthbyliar"
-                target="_blank"
-                rel="noopener noreferrer"
+                href={X_URL}
                 aria-label="X"
-                className="flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                className={socialClass}
+                {...externalProps}
               >
                 <svg
                   aria-hidden="true"
-                  className="h-3.5 w-3.5"
+                  className="h-4 w-4"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -58,39 +66,25 @@ export function LandingFooter() {
 
           <div className="flex gap-12 sm:gap-16">
             {Object.entries(FOOTER_LINKS).map(([section, links]) => (
-              <div key={section} className="flex flex-col gap-2.5 min-w-[90px]">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <div key={section} className="flex min-w-[90px] flex-col gap-2.5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {section}
                 </p>
                 <nav className="flex flex-col gap-2">
                   {links.map((link) =>
-                    link.external ? (
-                      <a
-                        key={link.label}
-                        href={link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
-                      >
-                        {link.label}
-                        <ArrowUpRight className="-translate-y-0.5 h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
-                      </a>
-                    ) : link.href.startsWith("#") ? (
-                      <a
-                        key={link.label}
-                        href={link.href}
-                        className="text-xs text-muted-foreground transition-colors hover:text-foreground"
-                      >
-                        {link.label}
-                      </a>
-                    ) : (
-                      <Link
-                        key={link.label}
-                        to={link.href}
-                        className="text-xs text-muted-foreground transition-colors hover:text-foreground"
-                      >
+                    link.to ? (
+                      <Link key={link.label} to={link.to} className={linkClass}>
                         {link.label}
                       </Link>
+                    ) : (
+                      <a
+                        key={link.label}
+                        href={link.href}
+                        className={linkClass}
+                        {...(link.external ? externalProps : {})}
+                      >
+                        {link.label}
+                      </a>
                     )
                   )}
                 </nav>
@@ -98,15 +92,15 @@ export function LandingFooter() {
             ))}
           </div>
         </div>
-        <div className="mt-6 border-t border-border pt-4 text-xs text-muted-foreground flex flex-col sm:flex-row items-center justify-between gap-3">
+
+        <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t pt-4 text-xs text-muted-foreground sm:flex-row">
           <p>© {year} Snip.</p>
           <p>
             Built by{" "}
             <a
-              href="https://github.com/adityasrc"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-foreground underline-offset-4 hover:underline"
+              href={AUTHOR_URL}
+              className="font-medium text-foreground underline-offset-4 hover:underline focus-visible:outline-hidden focus-visible:underline"
+              {...externalProps}
             >
               Aditya
             </a>

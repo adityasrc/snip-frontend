@@ -1,37 +1,28 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
+import { API_URL } from "../lib/api";
+
+function getReferrerHost() {
+  try {
+    return new URL(document.referrer).hostname || "Direct";
+  } catch {
+    return "Direct";
+  }
+}
 
 export default function RedirectHandler() {
   const { shortId } = useParams();
 
   useEffect(() => {
-    let ref = "Direct";
-
-    if (typeof document !== "undefined" && document.referrer) {
-      try {
-        ref = new URL(document.referrer).hostname || "Direct";
-      } catch {
-        ref = "Unknown";
-      }
-    }
-
-    const backendUrl =
-      import.meta.env.VITE_BACKEND_URL ||
-      import.meta.env.VITE_API_URL ||
-      "http://localhost:10000";
-
-    window.location.replace(
-      `${backendUrl}/${shortId}?ref=${encodeURIComponent(ref)}`
-    );
+    document.title = "Redirecting… | Snip";
+    window.location.replace(`${API_URL}/${shortId}?ref=${encodeURIComponent(getReferrerHost())}`);
   }, [shortId]);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col justify-center items-center">
-      <Loader2 className="w-8 h-8 text-primary animate-spin mb-4" />
-      <p className="text-muted-foreground text-sm font-medium tracking-tight">
-        Redirecting...
-      </p>
+    <div className="flex min-h-screen flex-col items-center justify-center gap-3">
+      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      <p className="text-sm text-muted-foreground">Redirecting…</p>
     </div>
   );
 }

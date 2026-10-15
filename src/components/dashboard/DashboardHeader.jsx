@@ -12,7 +12,7 @@ import {
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Logo } from "../Logo";
 import api from "@/lib/api";
-import { getUserFromToken } from "@/lib/utils";
+import { cn, getUserFromToken } from "@/lib/utils";
 
 export function DashboardHeader() {
   const navigate = useNavigate();
@@ -64,11 +64,12 @@ export function DashboardHeader() {
             <NavLink
               to="/dashboard"
               className={({ isActive }) =>
-                `inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-semibold transition-colors ${
+                cn(
+                  "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-semibold transition-colors",
                   isActive
-                    ? "text-foreground bg-muted"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`
+                    ? "bg-muted text-foreground"
+                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                )
               }
             >
               <Link2 size={14} /> Links
@@ -82,8 +83,8 @@ export function DashboardHeader() {
               aria-label="Open account menu"
               className="rounded-full focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <Avatar className="h-8 w-8 cursor-pointer ring-1 ring-border transition-all hover:ring-foreground">
-                <AvatarFallback className="bg-muted text-foreground text-xs font-medium">
+              <Avatar className="h-8 w-8 ring-1 ring-border transition-shadow hover:ring-foreground">
+                <AvatarFallback className="bg-muted text-xs font-medium">
                   {getInitials(user.name)}
                 </AvatarFallback>
               </Avatar>
@@ -92,7 +93,7 @@ export function DashboardHeader() {
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel className="font-normal px-2.5 py-2">
                 <div className="flex flex-col space-y-0.5">
-                  <p className="text-sm font-medium leading-none text-foreground">
+                  <p className="text-sm font-medium leading-none">
                     {user.name}
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
@@ -103,9 +104,9 @@ export function DashboardHeader() {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={handleLogout}
-                className="text-destructive focus:bg-destructive/10 focus:text-destructive flex items-center"
+                className="text-destructive focus:bg-destructive/10 focus:text-destructive"
               >
-                <LogOut className="mr-2 h-4 w-4" />
+                <LogOut />
                 Log out
               </DropdownMenuItem>
             </DropdownMenuContent>

@@ -3,12 +3,43 @@ import { Link } from "react-router-dom";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { Button } from "../ui/button";
 import { Logo } from "../Logo";
+import { cn, isLoggedIn } from "@/lib/utils";
+import { REPO_URL } from "@/lib/constants";
+
+const NAV_LINKS = [
+  { label: "Features", href: "#features" },
+  { label: "GitHub", href: REPO_URL, external: true },
+];
+
+const externalProps = { target: "_blank", rel: "noopener noreferrer" };
+
+function AuthButtons({ loggedIn, className, onNavigate }) {
+  if (loggedIn) {
+    return (
+      <Button asChild size="sm" className={cn("group", className)}>
+        <Link to="/dashboard" onClick={onNavigate}>
+          Dashboard <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
+        </Link>
+      </Button>
+    );
+  }
+  return (
+    <>
+      <Button asChild size="sm" variant="outline" className={className}>
+        <Link to="/signin" onClick={onNavigate}>Log in</Link>
+      </Button>
+      <Button asChild size="sm" className={className}>
+        <Link to="/signup" onClick={onNavigate}>Sign up</Link>
+      </Button>
+    </>
+  );
+}
 
 export function LandingHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-
-  const isLoggedIn = !!localStorage.getItem("token");
+  const loggedIn = isLoggedIn();
+  const closeMenu = () => setIsMobileMenuOpen(false);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -16,63 +47,41 @@ export function LandingHeader() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const navLinkClass =
+    "rounded-full px-3.5 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-card hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring";
+
   return (
     <header
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-background/90 backdrop-blur-md border-b border-border shadow-xs py-3"
-          : "bg-transparent py-5"
-      }`}
+      className={cn(
+        "fixed top-0 z-50 w-full transition-all duration-300",
+        isScrolled ? "border-b bg-background/90 py-3 backdrop-blur-md" : "bg-transparent py-5"
+      )}
     >
-      <div className="max-w-6xl mx-auto flex items-center justify-between px-6 relative">
-        <Link to="/" className="group">
+      <div className="relative mx-auto flex max-w-6xl items-center justify-between px-6">
+        <Link to="/" className="group rounded-lg focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring">
           <Logo />
         </Link>
 
-        <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-1 bg-muted/60 backdrop-blur-md border border-border/80 rounded-full p-1 shadow-xs">
-          <a
-            href="#features"
-            className="text-[13px] font-medium text-muted-foreground hover:text-foreground hover:bg-card hover:shadow-2xs px-3.5 py-1.5 rounded-full transition-all duration-150"
-          >
-            Features
-          </a>
-
-          <a
-            href="https://github.com/adityasrc/snip-frontend"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[13px] font-medium text-muted-foreground hover:text-foreground hover:bg-card hover:shadow-2xs px-3.5 py-1.5 rounded-full transition-all duration-150"
-          >
-            GitHub
-          </a>
+        <nav
+          aria-label="Main"
+          className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 rounded-full border bg-muted/60 p-1 md:flex"
+        >
+          {NAV_LINKS.map((link) => (
+            <a key={link.label} href={link.href} className={navLinkClass} {...(link.external ? externalProps : {})}>
+              {link.label}
+            </a>
+          ))}
         </nav>
 
-        <div className="hidden md:flex items-center gap-2">
-          {isLoggedIn ? (
-            <Button asChild size="sm" className="group">
-              <Link to="/dashboard">
-                Dashboard{" "}
-                <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
-              </Link>
-            </Button>
-          ) : (
-            <>
-              <Button asChild size="sm" variant="outline">
-                <Link to="/signin">Log in</Link>
-              </Button>
-
-              <Button asChild size="sm">
-                <Link to="/signup">Sign up</Link>
-              </Button>
-            </>
-          )}
+        <div className="hidden items-center gap-2 md:flex">
+          <AuthButtons loggedIn={loggedIn} />
         </div>
 
         <button
           type="button"
           aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
           aria-expanded={isMobileMenuOpen}
-          className="md:hidden p-2 rounded-lg hover:bg-muted text-foreground border border-transparent hover:border-border transition-all"
+          className="rounded-lg p-2 text-foreground transition-colors hover:bg-muted md:hidden focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -81,49 +90,21 @@ export function LandingHeader() {
 
       {isMobileMenuOpen && (
         <>
-          <div
-            className="md:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-          <div className="md:hidden absolute top-full left-0 w-full z-50 bg-background border-b border-border shadow-xl py-4 px-6 flex flex-col gap-1">
-            <a
-              href="#features"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted px-3 py-2.5 rounded-lg transition-colors"
-            >
-              Features
-            </a>
-            <a
-              href="https://github.com/adityasrc/snip-frontend"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted px-3 py-2.5 rounded-lg transition-colors"
-            >
-              GitHub
-            </a>
-
-            <div className="flex flex-col gap-2 mt-3 pt-4 border-t border-border">
-              {isLoggedIn ? (
-                <Button asChild size="sm" className="w-full">
-                  <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
-                    Dashboard <ArrowRight />
-                  </Link>
-                </Button>
-              ) : (
-                <>
-                  <Button asChild size="sm" variant="outline" className="w-full">
-                    <Link to="/signin" onClick={() => setIsMobileMenuOpen(false)}>
-                      Log in
-                    </Link>
-                  </Button>
-                  <Button asChild size="sm" className="w-full">
-                    <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
-                      Sign up
-                    </Link>
-                  </Button>
-                </>
-              )}
+          <div className="fixed inset-0 z-40 bg-black/40 md:hidden" onClick={closeMenu} />
+          <div className="absolute top-full left-0 z-50 flex w-full flex-col gap-1 border-b bg-background px-6 py-4 shadow-xl md:hidden">
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={closeMenu}
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
+                {...(link.external ? externalProps : {})}
+              >
+                {link.label}
+              </a>
+            ))}
+            <div className="flex flex-col gap-2 border-t pt-4">
+              <AuthButtons loggedIn={loggedIn} className="w-full" onNavigate={closeMenu} />
             </div>
           </div>
         </>

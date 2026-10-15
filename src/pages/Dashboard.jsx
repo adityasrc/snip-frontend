@@ -13,6 +13,7 @@ import { CreateLinkModal } from "../components/modals/CreateLinkModal";
 import { EditLinkModal } from "../components/modals/EditLinkModal";
 import { DeleteLinkModal } from "../components/modals/DeleteLinkModal";
 import { QrCodeModal } from "../components/modals/QrCodeModal";
+import { getErrorMessage } from "../lib/utils";
 
 function LinkSkeleton() {
   return (
@@ -33,26 +34,33 @@ function LinkSkeleton() {
   );
 }
 
+function EmptyState({ icon, title, description, children }) {
+  const Icon = icon;
+  return (
+    <div className="animate-fade-up rounded-2xl border border-dashed bg-card px-6 py-16 text-center">
+      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border bg-muted">
+        <Icon className="h-5 w-5 text-muted-foreground" />
+      </div>
+      <h2 className="mb-1.5 text-lg font-semibold">{title}</h2>
+      <p className="mx-auto mb-6 max-w-sm text-sm text-muted-foreground">{description}</p>
+      {children}
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [copiedLink, setCopiedLink] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [modal, setModal] = useState({ type: null });
   const searchRef = useRef(null);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
-  const [qrModalLink, setQrModalLink] = useState(null);
-
-  const [formData, setFormData] = useState({ title: "", originalUrl: "", customAlias: "", expiresAt: "" });
-  const [editData, setEditData] = useState({ id: null, title: "", originalUrl: "" });
-  const [linkToDelete, setLinkToDelete] = useState(null);
-  const [submitLoading, setSubmitLoading] = useState(false);
+  const openModal = (type, data = {}) => setModal({ type, ...data });
+  const closeModal = () => setModal((current) => ({ ...current, type: null }));
 
   useEffect(() => {
     document.title = "Snip | Links";
@@ -87,109 +95,42 @@ export default function Dashboard() {
 
     const prefillUrl = location.state?.prefillUrl;
     if (prefillUrl) {
-      setFormData((prev) => ({ ...prev, originalUrl: prefillUrl }));
-      setIsModalOpen(true);
+      openModal("create", { url: prefillUrl });
       navigate(location.pathname, { replace: true, state: null });
     }
   }, [fetchLinks, location.pathname, location.state?.prefillUrl, navigate]);
 
-  async function handleCreate() {
-    const originalUrl = formData.originalUrl.trim();
-    if (!originalUrl) return toast.error("URL is required");
-
-    const payload = {
-      originalUrl,
-      title: formData.title.trim() || undefined,
-      customAlias: formData.customAlias.trim() || undefined,
-      expiresAt: formData.expiresAt ? new Date(formData.expiresAt).toISOString() : undefined,
-    };
-
+  async function runAction(request, success, failure) {
     setSubmitLoading(true);
     try {
-      const res = await api.post(`/api/links/shorten`, payload);
-      const newLink = {
-        ...res.data,
-        _id: res.data._id,
-        title: payload.title || "Untitled",
-        originalUrl: payload.originalUrl,
-        clicks: 0,
-        shortId: res.data.finalId,
-        createdAt: new Date().toISOString(),
-      };
-
-      setLinks((prev) => [newLink, ...prev]);
-      setIsModalOpen(false);
-      setFormData({ title: "", originalUrl: "", customAlias: "", expiresAt: "" });
-      toast.success("Link created!");
+      await request();
+      await fetchLinks();
+      closeModal();
+      toast.success(success);
     } catch (e) {
-      toast.error(e.response?.data?.message || "Error creating link");
+      toast.error(getErrorMessage(e, failure));
     } finally {
       setSubmitLoading(false);
     }
   }
 
-  async function handleEdit() {
-    const originalUrl = editData.originalUrl.trim();
-    if (!originalUrl) return toast.error("URL cannot be empty");
+  const handleCreate = (values) => runAction(() => api.post("/api/links/shorten", {
+    originalUrl: values.originalUrl.trim(),
+    title: values.title.trim() || undefined,
+    customAlias: values.customAlias.trim() || undefined,
+    expiresAt: values.expiresAt ? new Date(values.expiresAt).toISOString() : undefined,
+  }), "Link created", "Error creating link");
 
-    const payload = {
-      originalUrl,
-      title: editData.title.trim() || undefined,
-    };
+  const handleEdit = (values) => runAction(() => api.patch(`/api/links/${modal.link._id}`, {
+    originalUrl: values.originalUrl.trim(),
+    title: values.title.trim() || undefined,
+  }), "Link updated", "Failed to update link");
 
-    setSubmitLoading(true);
-    try {
-      await api.patch(`/api/links/${editData.id}`, payload);
+  const handleDelete = () => runAction(() => api.delete(`/api/links/${modal.link._id}`), "Link deleted", "Failed to delete link");
 
-      setLinks((prev) =>
-        prev.map((l) =>
-          l._id === editData.id
-            ? { ...l, title: payload.title || l.title, originalUrl: payload.originalUrl }
-            : l
-        )
-      );
-
-      setIsEditModalOpen(false);
-      toast.success("Link updated");
-    } catch (e) {
-      toast.error(e.response?.data?.message || "Failed to update link");
-    } finally {
-      setSubmitLoading(false);
-    }
-  }
-
-  async function handleDelete() {
-    if (!linkToDelete) return;
-    setSubmitLoading(true);
-    try {
-      await api.delete(`/api/links/${linkToDelete}`);
-      setLinks((prev) => prev.filter((l) => l._id !== linkToDelete));
-      setIsDeleteModalOpen(false);
-      toast.success("Link deleted");
-    } catch (e) {
-      toast.error(e.response?.data?.message || "Failed to delete link");
-    } finally {
-      setSubmitLoading(false);
-      setLinkToDelete(null);
-    }
-  }
-
-  const copyToClipboard = async (shortId) => {
-    try {
-      await navigator.clipboard.writeText(`${window.location.origin}/${shortId}`);
-      setCopiedLink(shortId);
-      toast.success("Link copied!");
-      setTimeout(() => setCopiedLink(null), 2000);
-    } catch {
-      toast.error("Couldn't copy the link");
-    }
-  };
-
-  const filteredLinks = links.filter(
-    (link) =>
-      (link.title && link.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (link.originalUrl && link.originalUrl.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (link.shortId && link.shortId.toLowerCase().includes(searchQuery.toLowerCase()))
+  const query = searchQuery.toLowerCase();
+  const filteredLinks = links.filter((link) =>
+    [link.title, link.originalUrl, link.shortId].some((v) => v?.toLowerCase().includes(query))
   );
 
   return (
@@ -199,7 +140,7 @@ export default function Dashboard() {
       <main className="max-w-6xl mx-auto px-6 pt-10 animate-fade-in">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
-            <h1 className="flex items-center gap-2 text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
+            <h1 className="flex items-center gap-2 text-2xl md:text-3xl font-semibold tracking-tight">
               Links
               {!loading && links.length > 0 && (
                 <span className="rounded-full border bg-card px-2 py-0.5 text-xs font-medium tabular-nums text-muted-foreground">
@@ -224,14 +165,14 @@ export default function Dashboard() {
                 className="rounded-full pl-9 pr-10"
               />
               {!searchQuery && (
-                <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded border bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground sm:block">
+                <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-sm border bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground sm:block">
                   /
                 </kbd>
               )}
             </div>
             <Button
               className="group w-full sm:w-auto"
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => openModal("create")}
             >
               <Plus className="transition-transform duration-200 group-hover:rotate-90" /> Create link
             </Button>
@@ -251,34 +192,25 @@ export default function Dashboard() {
             ))}
           </div>
         ) : links.length === 0 ? (
-          <div className="text-center py-16 px-6 bg-card rounded-2xl border border-dashed border-border animate-fade-up">
-            <div className="bg-muted w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-border">
-              <LinkIcon className="w-5 h-5 text-foreground" />
-            </div>
-            <h2 className="text-[17px] font-semibold text-foreground mb-1.5">No links yet</h2>
-            <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto leading-relaxed">
-              Paste a long URL, get a short one, and see who clicks it.
-            </p>
-            <Button onClick={() => setIsModalOpen(true)}>
+          <EmptyState
+            icon={LinkIcon}
+            title="No links yet"
+            description="Paste a long URL, get a short one, and see who clicks it."
+          >
+            <Button onClick={() => openModal("create")}>
               <Plus /> Create your first link
             </Button>
-          </div>
+          </EmptyState>
         ) : filteredLinks.length === 0 ? (
-          <div className="text-center py-16 px-6 bg-card rounded-2xl border border-dashed border-border animate-fade-up">
-            <div className="bg-muted w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-border">
-              <Search className="w-5 h-5 text-muted-foreground" />
-            </div>
-            <h2 className="text-[17px] font-semibold text-foreground mb-1.5">No results found</h2>
-            <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto leading-relaxed">
-              No links matched "{searchQuery}".
-            </p>
-            <Button
-              variant="outline"
-              onClick={() => setSearchQuery("")}
-            >
+          <EmptyState
+            icon={Search}
+            title="No results found"
+            description={`No links matched "${searchQuery}".`}
+          >
+            <Button variant="outline" onClick={() => setSearchQuery("")}>
               Clear search
             </Button>
-          </div>
+          </EmptyState>
         ) : (
           <div className="grid gap-3">
             {filteredLinks.map((link, i) => (
@@ -286,20 +218,9 @@ export default function Dashboard() {
                 key={link._id}
                 index={i}
                 link={link}
-                copiedLink={copiedLink}
-                onCopy={copyToClipboard}
-                onEdit={(data) => {
-                  setEditData(data);
-                  setIsEditModalOpen(true);
-                }}
-                onDelete={(id) => {
-                  setLinkToDelete(id);
-                  setIsDeleteModalOpen(true);
-                }}
-                onQrCode={(data) => {
-                  setQrModalLink(data);
-                  setIsQrModalOpen(true);
-                }}
+                onEdit={(link) => openModal("edit", { link })}
+                onDelete={(link) => openModal("delete", { link })}
+                onQrCode={(link) => openModal("qr", { link })}
               />
             ))}
           </div>
@@ -307,31 +228,30 @@ export default function Dashboard() {
       </main>
 
       <CreateLinkModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        formData={formData}
-        setFormData={setFormData}
+        open={modal.type === "create"}
+        onClose={closeModal}
+        initialUrl={modal.url}
         onSubmit={handleCreate}
         isLoading={submitLoading}
       />
       <EditLinkModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        editData={editData}
-        setEditData={setEditData}
+        open={modal.type === "edit"}
+        onClose={closeModal}
+        link={modal.link}
         onSubmit={handleEdit}
         isLoading={submitLoading}
       />
       <DeleteLinkModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
+        open={modal.type === "delete"}
+        onClose={closeModal}
+        link={modal.link}
         onSubmit={handleDelete}
         isLoading={submitLoading}
       />
       <QrCodeModal
-        isOpen={isQrModalOpen}
-        onClose={() => setIsQrModalOpen(false)}
-        link={qrModalLink}
+        open={modal.type === "qr"}
+        onClose={closeModal}
+        link={modal.link}
       />
     </div>
   );

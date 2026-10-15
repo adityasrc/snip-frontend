@@ -1,56 +1,85 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../ui/dialog";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { Loader2 } from "lucide-react";
 
-export function EditLinkModal({ isOpen, onClose, editData, setEditData, onSubmit, isLoading }) {
+function EditLinkForm({ link, onSubmit, onClose, isLoading }) {
+  const [values, setValues] = useState({
+    originalUrl: link.originalUrl || "",
+    title: link.title || "",
+  });
+
+  const update = (field) => (e) =>
+    setValues({ ...values, [field]: e.target.value });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (values.originalUrl.trim()) onSubmit(values);
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md p-6 bg-card border-border rounded-2xl shadow-xl">
-        <DialogHeader>
-          <DialogTitle className="text-lg font-semibold text-foreground tracking-tight">
-            Edit Link
-          </DialogTitle>
-        </DialogHeader>
+    <form onSubmit={handleSubmit} className="grid gap-4">
+      <div className="grid gap-1.5">
+        <Label htmlFor="edit-url">Destination URL *</Label>
+        <Input
+          id="edit-url"
+          autoFocus
+          value={values.originalUrl}
+          onChange={update("originalUrl")}
+        />
+      </div>
 
-        <div className="flex flex-col gap-4 py-2">
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium text-foreground">Destination URL *</Label>
-            <Input
-              autoFocus
-              className="h-10 rounded-xl border-border focus-visible:ring-1 focus-visible:ring-ring text-sm text-foreground shadow-none"
-              value={editData.originalUrl}
-              onChange={(e) => setEditData({ ...editData, originalUrl: e.target.value })}
-            />
-          </div>
+      <div className="grid gap-1.5">
+        <Label htmlFor="edit-title">Title</Label>
+        <Input
+          id="edit-title"
+          placeholder="My Link"
+          value={values.title}
+          onChange={update("title")}
+        />
+      </div>
 
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium text-foreground">Title</Label>
-            <Input
-              className="h-10 rounded-xl border-border focus-visible:ring-1 focus-visible:ring-ring text-sm text-foreground shadow-none"
-              value={editData.title}
-              onChange={(e) => setEditData({ ...editData, title: e.target.value })}
-            />
-          </div>
-        </div>
+      <DialogFooter className="border-t pt-4">
+        <Button type="button" variant="ghost" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isLoading || !values.originalUrl.trim()}>
+          {isLoading && <Loader2 className="animate-spin" />}
+          {isLoading ? "Saving…" : "Save changes"}
+        </Button>
+      </DialogFooter>
+    </form>
+  );
+}
 
-        <DialogFooter className="pt-4 mt-2 border-t border-border sm:justify-end sm:space-x-2">
-          <Button
-            variant="ghost"
-            className="h-9 px-4 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted"
-            onClick={onClose}
-          >
-            Cancel
-          </Button>
-          <Button
-            className="h-9 px-5 bg-primary hover:bg-primary/90 text-sm font-medium text-primary-foreground rounded-full shadow-sm transition-all"
-            onClick={onSubmit}
-            disabled={isLoading || !editData.originalUrl?.trim()}
-          >
-            {isLoading ? "Saving..." : "Save changes"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
+export function EditLinkModal({ open, onClose, link, onSubmit, isLoading }) {
+  return (
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      {link && (
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit link</DialogTitle>
+            <DialogDescription className="font-mono">
+              {window.location.host}/{link.shortId}
+            </DialogDescription>
+          </DialogHeader>
+          <EditLinkForm
+            link={link}
+            onSubmit={onSubmit}
+            onClose={onClose}
+            isLoading={isLoading}
+          />
+        </DialogContent>
+      )}
     </Dialog>
   );
 }

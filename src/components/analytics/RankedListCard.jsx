@@ -1,56 +1,29 @@
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { ChartCard } from "./ChartCard";
 
-export function RankedListCard({ title, icon, data = [] }) {
-  const total = data.reduce((sum, d) => sum + d.value, 0);
-
+export function RankedListCard({ title, icon, data = [], formatName = (name) => name }) {
+  const total = data.reduce((sum, item) => sum + item.value, 0);
   return (
-    <Card className="bg-card border-border rounded-xl shadow-none">
-      <CardHeader className="flex items-center gap-2 border-b px-5 py-4">
-        {icon}
-        <CardTitle className="text-sm font-semibold text-foreground">
-          {title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-5">
-        {data.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-8">No data yet</p>
-        ) : (
-          <div className="flex flex-col gap-3">
-            {data.map((item, index) => {
-              const pct = total > 0 ? Math.round((item.value / total) * 100) : 0;
-              return (
-                <div key={item.name + index} className="flex items-center gap-3">
-                  <span className="text-[11px] font-semibold text-muted-foreground w-4 shrink-0 text-center tabular-nums">
-                    {index + 1}
-                  </span>
-                  <span
-                    className="text-[13px] text-foreground font-medium truncate flex-1 min-w-0"
-                    title={item.title || item.name}
-                  >
-                    {item.name}
-                  </span>
-                  <div className="w-24 sm:w-32 bg-muted rounded-full h-1.5 shrink-0 overflow-hidden">
-                    <div
-                      className="h-1.5 rounded-full animate-grow origin-left"
-                      style={{
-                        width: `${pct}%`,
-                        backgroundColor: "hsl(var(--chart-1))",
-                        animationDelay: `${index * 80}ms`,
-                      }}
-                    />
-                  </div>
-                  <span className="text-[12px] text-muted-foreground w-9 text-right shrink-0 tabular-nums">
-                    {pct}%
-                  </span>
-                  <span className="text-[13px] font-semibold text-foreground w-5 text-right shrink-0 tabular-nums">
-                    {item.value}
-                  </span>
+    <ChartCard title={title} icon={icon}>
+      {data.length === 0 ? (
+        <p className="py-8 text-center text-sm text-muted-foreground">No data yet</p>
+      ) : (
+        <ul className="flex flex-col gap-3">
+          {data.map((item, index) => {
+            const pct = total ? Math.round((item.value / total) * 100) : 0;
+            return (
+              <li key={item.name} className="flex items-center gap-3">
+                <span className="w-4 shrink-0 text-center text-xs font-medium tabular-nums text-muted-foreground">{index + 1}</span>
+                <span className="min-w-0 flex-1 truncate text-sm font-medium" title={item.name}>{formatName(item.name)}</span>
+                <div className="h-1.5 w-24 shrink-0 overflow-hidden rounded-full bg-muted sm:w-32">
+                  <div className="h-full origin-left animate-grow rounded-full bg-chart-1" style={{ width: `${pct}%`, animationDelay: `${index * 80}ms` }} />
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+                <span className="w-9 shrink-0 text-right text-xs tabular-nums text-muted-foreground">{pct}%</span>
+                <span className="w-8 shrink-0 text-right text-sm font-semibold tabular-nums">{item.value}</span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </ChartCard>
   );
 }

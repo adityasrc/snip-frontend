@@ -7,17 +7,17 @@ import {
   DialogDescription,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { Download, Copy, Check } from "lucide-react";
+import { Download, Copy, Check, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useCopy } from "../../lib/useCopy";
 
-export function QrCodeModal({ isOpen, onClose, link }) {
+export function QrCodeModal({ open, onClose, link }) {
   const [downloading, setDownloading] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [copied, copy] = useCopy();
 
   if (!link) return null;
 
-  const displayOrigin = window.location.origin;
-  const fullShortUrl = `${displayOrigin}/${link.shortId}`;
+  const fullShortUrl = `${window.location.origin}/${link.shortId}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=10&data=${encodeURIComponent(
     fullShortUrl
   )}`;
@@ -43,31 +43,18 @@ export function QrCodeModal({ isOpen, onClose, link }) {
     }
   };
 
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(fullShortUrl);
-      setCopied(true);
-      toast.success("Short link copied");
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error("Failed to copy");
-    }
-  };
-
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-sm p-6 bg-card border-border rounded-2xl shadow-xl">
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="sm:max-w-sm">
         <DialogHeader className="text-center sm:text-center">
-          <DialogTitle className="text-lg font-semibold text-foreground tracking-tight">
-            QR Code
-          </DialogTitle>
-          <DialogDescription className="text-xs text-muted-foreground truncate max-w-xs mx-auto">
+          <DialogTitle>QR code</DialogTitle>
+          <DialogDescription className="truncate max-w-xs mx-auto">
             {link.title || fullShortUrl}
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col items-center justify-center py-4">
-          <div className="rounded-2xl border border-border bg-white p-3.5 shadow-xs">
+          <div className="rounded-2xl border bg-white p-3.5 shadow-xs">
             <img
               src={qrUrl}
               alt={`QR code for ${fullShortUrl}`}
@@ -84,27 +71,19 @@ export function QrCodeModal({ isOpen, onClose, link }) {
         <div className="flex gap-2 w-full pt-1">
           <Button
             variant="outline"
-            className="flex-1 rounded-full text-xs"
-            onClick={handleCopyLink}
+            className="flex-1"
+            onClick={() => copy(fullShortUrl)}
           >
-            {copied ? (
-              <>
-                <Check className="h-3.5 w-3.5 text-emerald-600" /> Copied
-              </>
-            ) : (
-              <>
-                <Copy className="h-3.5 w-3.5" /> Copy link
-              </>
-            )}
+            {copied ? <Check className="text-success" /> : <Copy />} {copied ? "Copied" : "Copy link"}
           </Button>
 
           <Button
-            className="flex-1 rounded-full text-xs"
+            className="flex-1"
             onClick={handleDownload}
             disabled={downloading}
           >
-            <Download className="h-3.5 w-3.5" />
-            {downloading ? "Downloading..." : "Download PNG"}
+            {downloading ? <Loader2 className="animate-spin" /> : <Download />}
+            {downloading ? "Downloading…" : "Download PNG"}
           </Button>
         </div>
       </DialogContent>

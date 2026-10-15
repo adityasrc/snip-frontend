@@ -1,103 +1,124 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../ui/dialog";
+import { useState } from "react";
+import { format } from "date-fns";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { Calendar } from "lucide-react";
+import { Calendar, Loader2 } from "lucide-react";
 
-function localDateTimeNow() {
-  const date = new Date();
-  date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
-  return date.toISOString().slice(0, 16);
-}
+function CreateLinkForm({ initialUrl = "", onSubmit, onClose, isLoading }) {
+  const [values, setValues] = useState({
+    originalUrl: initialUrl,
+    title: "",
+    customAlias: "",
+    expiresAt: "",
+  });
 
-export function CreateLinkModal({ isOpen, onClose, formData, setFormData, onSubmit, isLoading }) {
-  const minimumExpiry = localDateTimeNow();
+  const update = (field) => (e) =>
+    setValues({ ...values, [field]: e.target.value });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (values.originalUrl.trim()) onSubmit(values);
+  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md p-6 bg-card border-border rounded-2xl shadow-xl">
-        <DialogHeader>
-          <DialogTitle className="text-lg font-semibold text-foreground tracking-tight">
-            Create new link
-          </DialogTitle>
-        </DialogHeader>
+    <form onSubmit={handleSubmit} className="grid gap-4">
+      <div className="grid gap-1.5">
+        <Label htmlFor="create-url">Destination URL *</Label>
+        <Input
+          id="create-url"
+          autoFocus
+          placeholder="https://example.com/very-long-url"
+          value={values.originalUrl}
+          onChange={update("originalUrl")}
+        />
+      </div>
 
-        <div className="flex flex-col gap-4 py-2">
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium text-foreground">Destination URL *</Label>
-            <Input
-              autoFocus
-              className="h-10 rounded-xl border-border focus-visible:ring-1 focus-visible:ring-ring text-sm text-foreground placeholder:text-muted-foreground shadow-none"
-              placeholder="https://example.com/very-long-url"
-              value={formData.originalUrl}
-              onChange={(e) => setFormData({ ...formData, originalUrl: e.target.value })}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-sm font-medium text-foreground">Title</Label>
-              <Input
-                className="h-10 rounded-xl border-border focus-visible:ring-1 focus-visible:ring-ring text-sm text-foreground placeholder:text-muted-foreground shadow-none"
-                placeholder="My Link"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-sm font-medium text-foreground">Custom Alias</Label>
-              <Input
-                className="h-10 rounded-xl border-border focus-visible:ring-1 focus-visible:ring-ring text-sm text-foreground placeholder:text-muted-foreground shadow-none"
-                placeholder="my-alias"
-                value={formData.customAlias}
-                onChange={(e) => setFormData({ ...formData, customAlias: e.target.value })}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2 rounded-xl border border-border bg-muted/30 p-3">
-            <div className="flex items-center justify-between gap-3">
-              <Label htmlFor="expires-at" className="flex items-center text-sm font-medium text-foreground">
-                <Calendar className="mr-1.5 h-3.5 w-3.5 text-muted-foreground" /> Expiry date
-              </Label>
-              {formData.expiresAt && (
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, expiresAt: "" })}
-                  className="text-xs font-medium text-muted-foreground hover:text-foreground"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-            <Input
-              id="expires-at"
-              className="h-10 rounded-lg border-border bg-background focus-visible:ring-1 focus-visible:ring-ring text-sm text-foreground shadow-none"
-              type="datetime-local"
-              min={minimumExpiry}
-              value={formData.expiresAt}
-              onChange={(e) => setFormData({ ...formData, expiresAt: e.target.value })}
-            />
-            <p className="text-[11px] leading-4 text-muted-foreground">Leave this empty to keep the link active.</p>
-          </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="grid gap-1.5">
+          <Label htmlFor="create-title">Title</Label>
+          <Input
+            id="create-title"
+            placeholder="My Link"
+            value={values.title}
+            onChange={update("title")}
+          />
         </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="create-alias">Custom alias</Label>
+          <Input
+            id="create-alias"
+            placeholder="my-alias"
+            value={values.customAlias}
+            onChange={update("customAlias")}
+          />
+        </div>
+      </div>
 
-        <DialogFooter className="pt-4 mt-2 border-t border-border sm:justify-end sm:space-x-2">
-          <Button
-            variant="ghost"
-            className="h-9 px-4 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted"
-            onClick={onClose}
-          >
-            Cancel
-          </Button>
-          <Button
-            className="h-9 px-5 bg-primary hover:bg-primary/90 text-sm font-medium text-primary-foreground rounded-full shadow-sm transition-all"
-            onClick={onSubmit}
-            disabled={isLoading || !formData.originalUrl?.trim()}
-          >
-            {isLoading ? "Creating..." : "Create link"}
-          </Button>
-        </DialogFooter>
+      <div className="space-y-2 rounded-xl border bg-muted/30 p-3">
+        <div className="flex items-center justify-between gap-3">
+          <Label htmlFor="create-expires" className="flex items-center">
+            <Calendar className="mr-1.5 h-3.5 w-3.5 text-muted-foreground" /> Expiry date
+          </Label>
+          {values.expiresAt && (
+            <button
+              type="button"
+              onClick={() => setValues({ ...values, expiresAt: "" })}
+              className="text-xs font-medium text-muted-foreground hover:text-foreground focus-visible:outline-hidden focus-visible:underline"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+        <Input
+          id="create-expires"
+          type="datetime-local"
+          min={format(new Date(), "yyyy-MM-dd'T'HH:mm")}
+          value={values.expiresAt}
+          onChange={update("expiresAt")}
+        />
+        <p className="text-xs text-muted-foreground">
+          Leave this empty to keep the link active.
+        </p>
+      </div>
+
+      <DialogFooter className="border-t pt-4">
+        <Button type="button" variant="ghost" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isLoading || !values.originalUrl.trim()}>
+          {isLoading && <Loader2 className="animate-spin" />}
+          {isLoading ? "Creating…" : "Create link"}
+        </Button>
+      </DialogFooter>
+    </form>
+  );
+}
+
+export function CreateLinkModal({ open, onClose, initialUrl = "", onSubmit, isLoading }) {
+  return (
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Create link</DialogTitle>
+          <DialogDescription>
+            Paste a long URL. An alias and an expiry date are optional.
+          </DialogDescription>
+        </DialogHeader>
+        <CreateLinkForm
+          initialUrl={initialUrl}
+          onSubmit={onSubmit}
+          onClose={onClose}
+          isLoading={isLoading}
+        />
       </DialogContent>
     </Dialog>
   );
